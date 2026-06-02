@@ -540,6 +540,73 @@ if not df_ringkasan.empty:
 else:
     st.info("Data ringkasan semua provinsi tidak tersedia untuk kombinasi pilihan ini.")
 # =====================================================
+# PETA TITIK PROVINSI SUMATERA
+# =====================================================
+st.subheader("Peta Monitoring Provinsi Sumatera")
+st.caption("Peta menunjukkan lokasi provinsi yang memiliki data untuk kombinasi tahun, triwulan, komoditas, dan OPT yang dipilih.")
+
+koordinat_provinsi = {
+    "Aceh": [4.6951, 96.7494],
+    "Sumatera Utara": [2.1154, 99.5451],
+    "Sumatera Barat": [-0.7399, 100.8000],
+    "Riau": [0.2933, 101.7068],
+    "Jambi": [-1.6101, 103.6131],
+    "Bengkulu": [-3.8004, 102.2655],
+    "Sumatera Selatan": [-3.3194, 103.9144],
+    "Lampung": [-4.5586, 105.4068],
+    "Bangka Belitung": [-2.7411, 106.4406],
+    "Kep. Riau": [3.9457, 108.1429]
+}
+
+if "df_ringkasan" in locals() and not df_ringkasan.empty:
+    data_peta = df_ringkasan.copy()
+
+    data_peta["lat"] = data_peta["provinsi"].map(
+        lambda x: koordinat_provinsi.get(x, [None, None])[0]
+    )
+
+    data_peta["lon"] = data_peta["provinsi"].map(
+        lambda x: koordinat_provinsi.get(x, [None, None])[1]
+    )
+
+    data_peta = data_peta.dropna(subset=["lat", "lon"])
+
+    if not data_peta.empty:
+        st.map(
+            data_peta,
+            latitude="lat",
+            longitude="lon",
+            size=80
+        )
+
+        kolom_peta = [
+            "provinsi",
+            "komoditas",
+            "opt",
+            "status_dashboard",
+            "gdd_akumulasi_dashboard"
+        ]
+
+        if "total_serangan" in data_peta.columns:
+            kolom_peta.append("total_serangan")
+
+        tabel_peta = data_peta[kolom_peta].copy()
+
+        tabel_peta = tabel_peta.rename(columns={
+            "provinsi": "Provinsi",
+            "komoditas": "Komoditas",
+            "opt": "OPT",
+            "status_dashboard": "Status",
+            "gdd_akumulasi_dashboard": "Akumulasi GDD",
+            "total_serangan": "Total Serangan (ha)"
+        })
+
+        st.dataframe(tabel_peta, use_container_width=True)
+    else:
+        st.info("Koordinat provinsi tidak tersedia untuk data yang dipilih.")
+else:
+    st.info("Data ringkasan provinsi belum tersedia untuk ditampilkan pada peta.")
+# =====================================================
 # PREDIKSI GDD TRIWULAN BERIKUTNYA
 # =====================================================
 st.subheader("Prediksi Triwulan Berikutnya")
