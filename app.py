@@ -709,7 +709,71 @@ if not data_historis_next.empty:
     )
 else:
     st.info("Data historis untuk prediksi triwulan berikutnya belum tersedia.")
+# =====================================================
+# NARASI OTOMATIS HASIL ANALISIS
+# =====================================================
+st.subheader("Narasi Otomatis Hasil Analisis")
 
+def buat_narasi(status, provinsi, tahun, triwulan, komoditas, opt, gdd_akhir, tbase, hujan_total):
+    if status == "Hijau":
+        makna = (
+            "Akumulasi GDD masih berada di bawah ambang waspada, sehingga kondisi "
+            "relatif belum mendukung peningkatan risiko OPT secara signifikan."
+        )
+        tindakan = (
+            "Tindakan yang disarankan adalah monitoring rutin, pencatatan gejala awal, "
+            "dan menjaga sanitasi lahan atau kebun."
+        )
+
+    elif status == "Kuning":
+        makna = (
+            "Akumulasi GDD telah mendekati ambang waspada, sehingga kondisi mulai "
+            "perlu diperhatikan karena potensi perkembangan OPT dapat meningkat."
+        )
+        tindakan = (
+            "Tindakan yang disarankan adalah meningkatkan frekuensi pengamatan lapangan, "
+            "memeriksa bagian tanaman yang rentan terserang, dan menyiapkan pengendalian terpadu."
+        )
+
+    else:
+        makna = (
+            "Akumulasi GDD telah mencapai atau melewati ambang bahaya, sehingga kondisi "
+            "berpotensi mendukung peningkatan risiko serangan OPT."
+        )
+        tindakan = (
+            "Tindakan yang disarankan adalah melakukan pengamatan intensif, identifikasi tingkat serangan, "
+            "sanitasi lahan, dan pengendalian terpadu sesuai kondisi lapangan."
+        )
+
+    narasi = f"""
+    Berdasarkan hasil analisis pada **Provinsi {provinsi}** tahun **{int(tahun)}** 
+    **Triwulan {int(triwulan)}**, komoditas **{komoditas}** dengan OPT **{opt}** 
+    berada pada status **{status}**.
+
+    Nilai akumulasi GDD yang diperoleh adalah **{gdd_akhir:.2f} GDD** dengan 
+    nilai Tbase yang digunakan sebesar **{tbase} °C**. Curah hujan pada periode ini 
+    tercatat sebesar **{hujan_total:.2f} mm**.
+
+    {makna}
+
+    {tindakan}
+    """
+
+    return narasi
+
+narasi_hasil = buat_narasi(
+    status=status,
+    provinsi=provinsi,
+    tahun=tahun,
+    triwulan=triwulan,
+    komoditas=komoditas,
+    opt=opt,
+    gdd_akhir=gdd_akhir,
+    tbase=tbase,
+    hujan_total=data_akhir["hujan_total"]
+)
+
+st.markdown(narasi_hasil)
 # =====================================================
 # INTERVENSI UNTUK SEMUA KOMODITAS / OPT
 # =====================================================
