@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 
 # =====================================================
 # PAGE CONFIG
@@ -11,7 +10,7 @@ st.set_page_config(
 )
 
 # =====================================================
-# CUSTOM CSS
+# CSS
 # =====================================================
 st.markdown("""
 <style>
@@ -89,7 +88,7 @@ st.markdown("""
 st.markdown("""
 <div class="header-card">
     <h1>🌿 DIGITAL MONITORING CARD OPT SUMATERA</h1>
-    <p>Analisis Risiko Organisme Pengganggu Tanaman Berbasis Growing Degree Days dan Curah Hujan</p>
+    <p>Analisis Risiko Organisme Pengganggu Tanaman Berbasis GDD dan Curah Hujan</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -449,63 +448,26 @@ def intervensi_umum(nama_komoditas, nama_opt, status_risiko):
 st.markdown(intervensi_umum(komoditas, opt, status))
 
 # =====================================================
-# GRAFIK GDD
+# GRAFIK BAWAAN STREAMLIT
 # =====================================================
 st.subheader("📈 Grafik Akumulasi GDD per Triwulan")
 
-fig_gdd = px.line(
-    df_pilih,
-    x="triwulan",
-    y="gdd_akumulasi_dashboard",
-    markers=True,
-    title=f"Akumulasi GDD {opt} pada {komoditas} di {provinsi} Tahun {int(tahun)}"
-)
+grafik_gdd = df_pilih[["triwulan", "gdd_akumulasi_dashboard"]].copy()
+grafik_gdd = grafik_gdd.groupby("triwulan", as_index=True)["gdd_akumulasi_dashboard"].mean()
+st.line_chart(grafik_gdd)
 
-fig_gdd.update_layout(
-    xaxis_title="Triwulan",
-    yaxis_title="Akumulasi GDD"
-)
-
-st.plotly_chart(fig_gdd, use_container_width=True)
-
-# =====================================================
-# GRAFIK HUJAN
-# =====================================================
 st.subheader("🌧️ Curah Hujan per Triwulan")
 
-fig_hujan = px.bar(
-    df_pilih,
-    x="triwulan",
-    y="hujan_total",
-    title=f"Curah Hujan Triwulan di {provinsi} Tahun {int(tahun)}"
-)
+grafik_hujan = df_pilih[["triwulan", "hujan_total"]].copy()
+grafik_hujan = grafik_hujan.groupby("triwulan", as_index=True)["hujan_total"].mean()
+st.bar_chart(grafik_hujan)
 
-fig_hujan.update_layout(
-    xaxis_title="Triwulan",
-    yaxis_title="Curah Hujan"
-)
-
-st.plotly_chart(fig_hujan, use_container_width=True)
-
-# =====================================================
-# GRAFIK SERANGAN
-# =====================================================
 if "total_serangan" in df_pilih.columns:
     st.subheader("🐛 Total Luas Serangan per Triwulan")
 
-    fig_serangan = px.bar(
-        df_pilih,
-        x="triwulan",
-        y="total_serangan",
-        title=f"Total Luas Serangan {opt} di {provinsi} Tahun {int(tahun)}"
-    )
-
-    fig_serangan.update_layout(
-        xaxis_title="Triwulan",
-        yaxis_title="Total Serangan (ha)"
-    )
-
-    st.plotly_chart(fig_serangan, use_container_width=True)
+    grafik_serangan = df_pilih[["triwulan", "total_serangan"]].copy()
+    grafik_serangan = grafik_serangan.groupby("triwulan", as_index=True)["total_serangan"].sum()
+    st.bar_chart(grafik_serangan)
 
 # =====================================================
 # DATA DETAIL
