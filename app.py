@@ -261,15 +261,31 @@ tahun = st.sidebar.selectbox("Pilih Tahun", tahun_list)
 
 df_tahun = df_prov[df_prov["tahun"] == tahun]
 
-komoditas_list = sorted(df_tahun["komoditas"].dropna().unique())
+# FITUR BARU: PILIH TRIWULAN
+triwulan_list = sorted(df_tahun["triwulan"].dropna().unique())
+triwulan = st.sidebar.selectbox(
+    "Pilih Triwulan",
+    triwulan_list,
+    format_func=lambda x: f"Triwulan {int(x)}"
+)
+
+df_triwulan = df_tahun[df_tahun["triwulan"] == triwulan]
+
+komoditas_list = sorted(df_triwulan["komoditas"].dropna().unique())
 komoditas = st.sidebar.selectbox("Pilih Komoditas", komoditas_list)
 
-df_komoditas = df_tahun[df_tahun["komoditas"] == komoditas]
+df_komoditas = df_triwulan[df_triwulan["komoditas"] == komoditas]
 
 opt_list = sorted(df_komoditas["opt"].dropna().unique())
 opt = st.sidebar.selectbox("Pilih OPT", opt_list)
 
 df_pilih = df_komoditas[df_komoditas["opt"] == opt].copy()
+
+# Data khusus grafik: tetap menampilkan pola Triwulan 1-4 pada tahun yang dipilih
+df_grafik = df_tahun[
+    (df_tahun["komoditas"] == komoditas) &
+    (df_tahun["opt"] == opt)
+].copy()
 
 if df_pilih.empty:
     st.warning("Data tidak tersedia untuk pilihan ini.")
@@ -325,6 +341,20 @@ df_pilih["gdd_akumulasi_dashboard"] = (
     .cumsum()
 )
 
+# Hitung juga untuk grafik semua triwulan
+df_grafik = df_grafik.sort_values(["tahun", "triwulan"])
+
+df_grafik["gdd_triwulan_dashboard"] = (
+    (((df_grafik["tmax_rata"] + df_grafik["tmin_rata"]) / 2) - tbase)
+    * df_grafik["jumlah_hari"]
+).clip(lower=0)
+
+df_grafik["gdd_akumulasi_dashboard"] = (
+    df_grafik
+    .groupby(["provinsi", "komoditas", "opt", "tahun"])["gdd_triwulan_dashboard"]
+    .cumsum()
+)
+
 data_akhir = df_pilih.iloc[-1]
 gdd_akhir = data_akhir["gdd_akumulasi_dashboard"]
 
@@ -341,7 +371,7 @@ status = status_dari_gdd(gdd_akhir)
 # =====================================================
 # RINGKASAN PILIHAN
 # =====================================================
-st.subheader(f"{provinsi} | {int(tahun)} | {komoditas} | {opt}")
+st.subheader(f"{provinsi} | {int(tahun)} | Triwulan {int(triwulan)} | {komoditas} | {opt}")
 
 st.markdown(f"""
 <div class="info-box">
@@ -373,7 +403,7 @@ st.markdown("---")
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Tahun", int(data_akhir["tahun"]))
-col2.metric("Triwulan Terakhir", int(data_akhir["triwulan"]))
+col2.metric("Triwulan Dipilih", int(data_akhir["triwulan"]))
 col3.metric("Suhu Rata-rata", f"{data_akhir['suhu_rata']:.2f} °C")
 col4.metric("Curah Hujan", f"{data_akhir['hujan_total']:.2f} mm")
 
@@ -561,27 +591,27 @@ st.markdown(
 # =====================================================
 st.subheader("Grafik Akumulasi GDD per Triwulan")
 
-grafik_gdd = df_pilih[["triwulan", "gdd_akumulasi_dashboard"]].copy()
+grafik_gdd = df_grafik[["triwulan", "gdd_akumulasi_dashboard"]].copy()
 grafik_gdd = grafik_gdd.groupby("triwulan", as_index=True)["gdd_akumulasi_dashboard"].mean()
 st.line_chart(grafik_gdd)
 
 st.subheader("Curah Hujan per Triwulan")
 
-grafik_hujan = df_pilih[["triwulan", "hujan_total"]].copy()
+grafik_hujan = df_grafik[["triwulan", "hujan_total"]].copy()
 grafik_hujan = grafik_hujan.groupby("triwulan", as_index=True)["hujan_total"].mean()
 st.bar_chart(grafik_hujan)
 
-if "total_serangan" in df_pilih.columns:
+if "total_serangan" in df_grafik.columns:
     st.subheader("Total Luas Serangan per Triwulan")
 
-    grafik_serangan = df_pilih[["triwulan", "total_serangan"]].copy()
+    grafik_serangan = df_grafik[["triwulan", "total_serangan"]].copy()
     grafik_serangan = grafik_serangan.groupby("triwulan", as_index=True)["total_serangan"].sum()
     st.bar_chart(grafik_serangan)
 
 # =====================================================
 # DATA DETAIL
 # =====================================================
-st.subheader("Data Detail")
+st.subheader("Data Detail Triwulan Dipilih")
 
 kolom_tampil = [
     "provinsi", "tahun", "triwulan", "komoditas", "opt",
