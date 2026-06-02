@@ -15,183 +15,234 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* =========================
-   GLOBAL
+   GLOBAL BACKGROUND
 ========================= */
 .stApp {
-    background: linear-gradient(135deg, #f3f7f1 0%, #eef5ec 45%, #ffffff 100%);
+    background:
+        radial-gradient(circle at top left, rgba(45, 106, 79, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(183, 228, 199, 0.32), transparent 35%),
+        linear-gradient(135deg, #f6faf5 0%, #eef7ef 45%, #ffffff 100%);
 }
 
 .block-container {
-    padding-top: 2rem;
+    padding-top: 2.2rem;
     padding-bottom: 3rem;
-    max-width: 1180px;
+    max-width: 1160px;
 }
 
 h1, h2, h3 {
-    color: #152536;
+    color: #102a1f;
+    letter-spacing: -0.3px;
 }
 
 hr {
     border: none;
-    border-top: 1px solid #dfe8dc;
-    margin: 26px 0;
+    border-top: 1px solid rgba(45, 106, 79, 0.15);
+    margin: 30px 0;
 }
 
 /* =========================
    SIDEBAR
 ========================= */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #edf6ef 0%, #f8faf7 100%);
-    border-right: 1px solid #dbe7d7;
+    background:
+        linear-gradient(180deg, #eaf5ec 0%, #f8fbf7 100%);
+    border-right: 1px solid rgba(45, 106, 79, 0.18);
 }
 
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3 {
-    color: #143d2b;
+    color: #103d2c;
+    font-weight: 800;
 }
 
 section[data-testid="stSidebar"] label {
-    color: #263238;
-    font-weight: 600;
+    color: #244538;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+section[data-testid="stSidebar"] [data-baseweb="select"] {
+    border-radius: 14px;
 }
 
 /* =========================
-   HEADER
+   HEADER CARD
 ========================= */
 .header-card {
+    position: relative;
+    overflow: hidden;
     background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.20), transparent 32%),
-        linear-gradient(135deg, #0f3d2e 0%, #1b5e3f 50%, #2d6a4f 100%);
-    padding: 38px 30px;
-    border-radius: 26px;
+        radial-gradient(circle at 8% 15%, rgba(255,255,255,0.25), transparent 26%),
+        radial-gradient(circle at 90% 20%, rgba(183,228,199,0.22), transparent 26%),
+        linear-gradient(135deg, #0b2f22 0%, #145038 48%, #2d6a4f 100%);
+    padding: 46px 34px;
+    border-radius: 30px;
     color: white;
     text-align: center;
-    margin-bottom: 32px;
-    box-shadow: 0 16px 38px rgba(15, 61, 46, 0.22);
+    margin-bottom: 38px;
+    box-shadow:
+        0 28px 60px rgba(15, 61, 46, 0.26),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.header-card::after {
+    content: "";
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    right: -80px;
+    bottom: -120px;
+    background: rgba(255,255,255,0.08);
 }
 
 .header-card h1 {
     margin: 0;
     color: white;
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: 1px;
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
 }
 
 .header-card p {
-    margin-top: 14px;
+    margin-top: 16px;
     font-size: 17px;
-    color: #e6f4ec;
+    color: #eaf7ef;
+    font-weight: 500;
 }
 
 /* =========================
    INFO BOX
 ========================= */
 .info-box {
-    background: rgba(255,255,255,0.95);
-    padding: 22px 24px;
-    border-radius: 18px;
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(10px);
+    padding: 24px 26px;
+    border-radius: 22px;
     border-left: 7px solid #2d6a4f;
-    margin-bottom: 22px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+    box-shadow:
+        0 18px 40px rgba(18, 64, 43, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .info-box b {
-    color: #143d2b;
+    color: #103d2c;
 }
 
 .small-note {
+    display: inline-block;
+    margin-top: 8px;
     font-size: 13px;
-    color: #6c757d;
+    color: #63776c;
 }
 
 /* =========================
    STATUS CARD
 ========================= */
 .status-card {
-    padding: 26px;
-    border-radius: 22px;
-    font-size: 26px;
-    font-weight: 800;
+    padding: 30px;
+    border-radius: 26px;
+    font-size: 28px;
+    font-weight: 900;
     text-align: center;
-    margin: 20px 0 26px 0;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+    margin: 24px 0 30px 0;
+    box-shadow: 0 20px 46px rgba(0,0,0,0.10);
+    letter-spacing: 0.6px;
 }
 
 .status-green {
-    background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
-    color: #0b4228;
+    background:
+        linear-gradient(135deg, #d8f3dc, #b7e4c7);
+    color: #073b22;
     border: 1px solid #95d5b2;
 }
 
 .status-yellow {
-    background: linear-gradient(135deg, #fff3cd, #ffe69c);
-    color: #7a5200;
-    border: 1px solid #ffda6a;
+    background:
+        linear-gradient(135deg, #fff3cd, #ffe08a);
+    color: #704c00;
+    border: 1px solid #ffd166;
 }
 
 .status-red {
-    background: linear-gradient(135deg, #f8d7da, #f1aeb5);
-    color: #7f1d1d;
+    background:
+        linear-gradient(135deg, #f8d7da, #f1aeb5);
+    color: #741616;
     border: 1px solid #ea868f;
 }
 
 /* =========================
-   STREAMLIT METRIC
+   METRIC CARDS
 ========================= */
 [data-testid="stMetric"] {
-    background: rgba(255,255,255,0.95);
-    padding: 18px;
-    border-radius: 18px;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.055);
-    border: 1px solid #edf2ea;
+    background: rgba(255,255,255,0.86);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 22px;
+    box-shadow:
+        0 14px 34px rgba(18, 64, 43, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    border: 1px solid rgba(45, 106, 79, 0.10);
 }
 
 [data-testid="stMetricLabel"] {
-    color: #52675a;
-    font-weight: 700;
+    color: #5c7065;
+    font-weight: 800;
 }
 
 [data-testid="stMetricValue"] {
-    color: #143d2b;
+    color: #103d2c;
+    font-weight: 900;
+}
+
+/* =========================
+   ALERTS
+========================= */
+[data-testid="stAlert"] {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+}
+
+/* =========================
+   INTERVENTION BOX
+========================= */
+.intervention-box {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(10px);
+    padding: 26px 30px;
+    border-radius: 24px;
+    border: 1px solid rgba(45, 106, 79, 0.12);
+    box-shadow:
+        0 18px 42px rgba(18, 64, 43, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    margin-bottom: 24px;
 }
 
 /* =========================
    CHART / DATAFRAME
 ========================= */
 [data-testid="stDataFrame"] {
-    border-radius: 14px;
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.04);
+    box-shadow: 0 16px 36px rgba(18, 64, 43, 0.08);
+    border: 1px solid rgba(45, 106, 79, 0.10);
 }
 
-.intervention-box {
-    background: rgba(255,255,255,0.95);
-    padding: 22px 26px;
+[data-testid="stVerticalBlock"] > div {
     border-radius: 18px;
-    border: 1px solid #e3eadf;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.055);
-    margin-bottom: 20px;
 }
 
 .footer-note {
     color: #667085;
     font-size: 13px;
     text-align: center;
-    margin-top: 30px;
+    margin-top: 34px;
 }
 </style>
-""", unsafe_allow_html=True)
-
-# =====================================================
-# HEADER
-# =====================================================
-st.markdown("""
-<div class="header-card">
-    <h1>DIGITAL MONITORING CARD OPT SUMATERA</h1>
-    <p>Analisis Risiko Organisme Pengganggu Tanaman Berbasis Growing Degree Days dan Curah Hujan</p>
-</div>
 """, unsafe_allow_html=True)
 
 # =====================================================
