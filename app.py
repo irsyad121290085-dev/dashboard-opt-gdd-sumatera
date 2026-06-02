@@ -14,70 +14,172 @@ st.set_page_config(
 # =====================================================
 st.markdown("""
 <style>
-.block-container {
-    padding-top: 2rem;
+/* =========================
+   GLOBAL
+========================= */
+.stApp {
+    background: linear-gradient(135deg, #f3f7f1 0%, #eef5ec 45%, #ffffff 100%);
 }
 
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1180px;
+}
+
+h1, h2, h3 {
+    color: #152536;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #dfe8dc;
+    margin: 26px 0;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #edf6ef 0%, #f8faf7 100%);
+    border-right: 1px solid #dbe7d7;
+}
+
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #143d2b;
+}
+
+section[data-testid="stSidebar"] label {
+    color: #263238;
+    font-weight: 600;
+}
+
+/* =========================
+   HEADER
+========================= */
 .header-card {
-    background: linear-gradient(135deg, #1b4332, #2d6a4f);
-    padding: 28px;
-    border-radius: 18px;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.20), transparent 32%),
+        linear-gradient(135deg, #0f3d2e 0%, #1b5e3f 50%, #2d6a4f 100%);
+    padding: 38px 30px;
+    border-radius: 26px;
     color: white;
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 32px;
+    box-shadow: 0 16px 38px rgba(15, 61, 46, 0.22);
 }
 
 .header-card h1 {
     margin: 0;
-    font-size: 34px;
+    color: white;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 1px;
 }
 
 .header-card p {
-    margin-top: 8px;
-    font-size: 16px;
+    margin-top: 14px;
+    font-size: 17px;
+    color: #e6f4ec;
 }
 
-.status-green {
-    background-color: #d8f3dc;
-    color: #1b4332;
-    padding: 22px;
-    border-radius: 16px;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.status-yellow {
-    background-color: #fff3cd;
-    color: #856404;
-    padding: 22px;
-    border-radius: 16px;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.status-red {
-    background-color: #f8d7da;
-    color: #842029;
-    padding: 22px;
-    border-radius: 16px;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-}
-
+/* =========================
+   INFO BOX
+========================= */
 .info-box {
-    background-color: #f8f9fa;
-    padding: 18px;
-    border-radius: 14px;
-    border-left: 6px solid #2d6a4f;
-    margin-bottom: 18px;
+    background: rgba(255,255,255,0.95);
+    padding: 22px 24px;
+    border-radius: 18px;
+    border-left: 7px solid #2d6a4f;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.info-box b {
+    color: #143d2b;
 }
 
 .small-note {
     font-size: 13px;
     color: #6c757d;
+}
+
+/* =========================
+   STATUS CARD
+========================= */
+.status-card {
+    padding: 26px;
+    border-radius: 22px;
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    margin: 20px 0 26px 0;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+}
+
+.status-green {
+    background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+    color: #0b4228;
+    border: 1px solid #95d5b2;
+}
+
+.status-yellow {
+    background: linear-gradient(135deg, #fff3cd, #ffe69c);
+    color: #7a5200;
+    border: 1px solid #ffda6a;
+}
+
+.status-red {
+    background: linear-gradient(135deg, #f8d7da, #f1aeb5);
+    color: #7f1d1d;
+    border: 1px solid #ea868f;
+}
+
+/* =========================
+   STREAMLIT METRIC
+========================= */
+[data-testid="stMetric"] {
+    background: rgba(255,255,255,0.95);
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.055);
+    border: 1px solid #edf2ea;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #52675a;
+    font-weight: 700;
+}
+
+[data-testid="stMetricValue"] {
+    color: #143d2b;
+}
+
+/* =========================
+   CHART / DATAFRAME
+========================= */
+[data-testid="stDataFrame"] {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.04);
+}
+
+.intervention-box {
+    background: rgba(255,255,255,0.95);
+    padding: 22px 26px;
+    border-radius: 18px;
+    border: 1px solid #e3eadf;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.055);
+    margin-bottom: 20px;
+}
+
+.footer-note {
+    color: #667085;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 30px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -87,8 +189,8 @@ st.markdown("""
 # =====================================================
 st.markdown("""
 <div class="header-card">
-    <h1>🌿 DIGITAL MONITORING CARD OPT SUMATERA</h1>
-    <p>Analisis Risiko Organisme Pengganggu Tanaman Berbasis GDD dan Curah Hujan</p>
+    <h1>DIGITAL MONITORING CARD OPT SUMATERA</h1>
+    <p>Analisis Risiko Organisme Pengganggu Tanaman Berbasis Growing Degree Days dan Curah Hujan</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -147,7 +249,7 @@ df = df.dropna(subset=["provinsi", "tahun", "triwulan", "komoditas", "opt"])
 # =====================================================
 # SIDEBAR FILTER
 # =====================================================
-st.sidebar.title("🔎 Filter Dashboard")
+st.sidebar.title("Filter Dashboard")
 
 provinsi_list = sorted(df["provinsi"].dropna().unique())
 provinsi = st.sidebar.selectbox("Pilih Provinsi", provinsi_list)
@@ -239,7 +341,7 @@ status = status_dari_gdd(gdd_akhir)
 # =====================================================
 # RINGKASAN PILIHAN
 # =====================================================
-st.subheader(f"📍 {provinsi} | {int(tahun)} | {komoditas} | {opt}")
+st.subheader(f"{provinsi} | {int(tahun)} | {komoditas} | {opt}")
 
 st.markdown(f"""
 <div class="info-box">
@@ -257,11 +359,11 @@ st.markdown(f"""
 # STATUS CARD
 # =====================================================
 if status == "Merah":
-    st.markdown('<div class="status-red">🔴 MERAH - Risiko Tinggi</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-card status-red">MERAH - Risiko Tinggi</div>', unsafe_allow_html=True)
 elif status == "Kuning":
-    st.markdown('<div class="status-yellow">🟡 KUNING - Perlu Waspada</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-card status-yellow">KUNING - Perlu Waspada</div>', unsafe_allow_html=True)
 else:
-    st.markdown('<div class="status-green">🟢 HIJAU - Relatif Aman</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-card status-green">HIJAU - Relatif Aman</div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -289,7 +391,7 @@ else:
 # =====================================================
 # PREDIKSI GDD TRIWULAN BERIKUTNYA
 # =====================================================
-st.subheader("🔮 Prediksi Triwulan Berikutnya")
+st.subheader("Prediksi Triwulan Berikutnya")
 
 triwulan_saat_ini = int(data_akhir["triwulan"])
 
@@ -322,11 +424,11 @@ if not data_historis_next.empty:
     colp3.metric("Prediksi Akumulasi GDD", f"{prediksi_akumulasi:.2f}")
 
     if status_prediksi == "Merah":
-        st.error("🔴 Prediksi Status: MERAH - Risiko tinggi pada triwulan berikutnya")
+        st.error("Prediksi Status: MERAH - Risiko tinggi pada triwulan berikutnya")
     elif status_prediksi == "Kuning":
-        st.warning("🟡 Prediksi Status: KUNING - Perlu kewaspadaan pada triwulan berikutnya")
+        st.warning("Prediksi Status: KUNING - Perlu kewaspadaan pada triwulan berikutnya")
     else:
-        st.success("🟢 Prediksi Status: HIJAU - Risiko relatif rendah pada triwulan berikutnya")
+        st.success("Prediksi Status: HIJAU - Risiko relatif rendah pada triwulan berikutnya")
 
     st.caption("Prediksi dihitung dari rata-rata historis GDD pada triwulan yang sama dalam dataset.")
 else:
@@ -335,7 +437,7 @@ else:
 # =====================================================
 # INTERVENSI UNTUK SEMUA KOMODITAS / OPT
 # =====================================================
-st.subheader("📋 Rekomendasi Intervensi")
+st.subheader("Rekomendasi Intervensi")
 
 def intervensi_umum(nama_komoditas, nama_opt, status_risiko):
     opt_lower = str(nama_opt).lower()
@@ -445,25 +547,32 @@ def intervensi_umum(nama_komoditas, nama_opt, status_risiko):
 
     return "Intervensi belum tersedia."
 
-st.markdown(intervensi_umum(komoditas, opt, status))
+st.markdown(
+    f"""
+    <div class="intervention-box">
+    {intervensi_umum(komoditas, opt, status)}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # =====================================================
 # GRAFIK BAWAAN STREAMLIT
 # =====================================================
-st.subheader("📈 Grafik Akumulasi GDD per Triwulan")
+st.subheader("Grafik Akumulasi GDD per Triwulan")
 
 grafik_gdd = df_pilih[["triwulan", "gdd_akumulasi_dashboard"]].copy()
 grafik_gdd = grafik_gdd.groupby("triwulan", as_index=True)["gdd_akumulasi_dashboard"].mean()
 st.line_chart(grafik_gdd)
 
-st.subheader("🌧️ Curah Hujan per Triwulan")
+st.subheader("Curah Hujan per Triwulan")
 
 grafik_hujan = df_pilih[["triwulan", "hujan_total"]].copy()
 grafik_hujan = grafik_hujan.groupby("triwulan", as_index=True)["hujan_total"].mean()
 st.bar_chart(grafik_hujan)
 
 if "total_serangan" in df_pilih.columns:
-    st.subheader("🐛 Total Luas Serangan per Triwulan")
+    st.subheader("Total Luas Serangan per Triwulan")
 
     grafik_serangan = df_pilih[["triwulan", "total_serangan"]].copy()
     grafik_serangan = grafik_serangan.groupby("triwulan", as_index=True)["total_serangan"].sum()
@@ -472,7 +581,7 @@ if "total_serangan" in df_pilih.columns:
 # =====================================================
 # DATA DETAIL
 # =====================================================
-st.subheader("📄 Data Detail")
+st.subheader("Data Detail")
 
 kolom_tampil = [
     "provinsi", "tahun", "triwulan", "komoditas", "opt",
@@ -490,7 +599,7 @@ st.dataframe(df_pilih[kolom_tampil], use_container_width=True)
 # =====================================================
 # METODOLOGI SINGKAT
 # =====================================================
-with st.expander("ℹ️ Metodologi Perhitungan"):
+with st.expander("Metodologi Perhitungan"):
     st.markdown("""
     **Growing Degree Days (GDD)** dihitung menggunakan suhu maksimum dan minimum rata-rata triwulan.
 
@@ -502,9 +611,15 @@ with st.expander("ℹ️ Metodologi Perhitungan"):
 
     **Status risiko:**
 
-    - 🟢 **Hijau**: Akumulasi GDD masih rendah.
-    - 🟡 **Kuning**: Akumulasi GDD mendekati ambang waspada.
-    - 🔴 **Merah**: Akumulasi GDD mencapai atau melewati ambang bahaya.
+    - **Hijau**: Akumulasi GDD masih rendah.
+    - **Kuning**: Akumulasi GDD mendekati ambang waspada.
+    - **Merah**: Akumulasi GDD mencapai atau melewati ambang bahaya.
 
     **Prediksi triwulan berikutnya** dihitung menggunakan rata-rata historis GDD pada triwulan yang sama dalam dataset.
     """)
+
+st.markdown("""
+<div class="footer-note">
+    Dashboard Monitoring OPT Sumatera berbasis data suhu, curah hujan, dan serangan OPT.
+</div>
+""", unsafe_allow_html=True)
