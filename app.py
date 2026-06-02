@@ -55,14 +55,11 @@ hr {
    SIDEBAR
 ========================= */
 section[data-testid="stSidebar"] {
-    background: #eef5ec;
+    background: #f5faf4 !important;
     border-right: 1px solid #cfded0;
 }
 
-section[data-testid="stSidebar"] * {
-    color: #17231b !important;
-}
-
+/* Judul sidebar */
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3 {
@@ -70,74 +67,47 @@ section[data-testid="stSidebar"] h3 {
     font-weight: 800;
 }
 
+/* Label filter */
 section[data-testid="stSidebar"] label {
     color: #17231b !important;
     font-weight: 700;
     font-size: 14px;
 }
 
-/* Selectbox text */
-section[data-testid="stSidebar"] [data-baseweb="select"] * {
+/* Selectbox container */
+section[data-testid="stSidebar"] [data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    color: #17231b !important;
+    border: 1px solid #cfded0 !important;
+    border-radius: 12px !important;
+}
+
+/* Text di dalam selectbox */
+section[data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #17231b !important;
 }
 
-/* =========================
-   HEADER CARD
-========================= */
-.header-card {
-    background: linear-gradient(135deg, #0f3d2e 0%, #1b5e3f 55%, #2d6a4f 100%);
-    padding: 42px 34px;
-    border-radius: 28px;
-    color: #ffffff !important;
-    text-align: center;
-    margin-bottom: 34px;
-    box-shadow: 0 18px 42px rgba(15, 61, 46, 0.24);
-}
-
-.header-card h1 {
-    margin: 0;
-    color: #ffffff !important;
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
-
-.header-card p {
-    margin-top: 14px;
-    font-size: 17px;
-    color: #eef8f1 !important;
-    font-weight: 500;
-}
-
-/* =========================
-   INFO BOX
-========================= */
-.info-box {
-    background: #ffffff;
-    padding: 24px 26px;
-    border-radius: 20px;
-    border-left: 7px solid #2d6a4f;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 26px rgba(18, 64, 43, 0.08);
+/* Icon dropdown */
+section[data-testid="stSidebar"] [data-baseweb="select"] svg {
     color: #17231b !important;
+    fill: #17231b !important;
 }
 
-.info-box,
-.info-box p,
-.info-box span,
-.info-box div {
+/* Dropdown menu */
+div[data-baseweb="popover"] {
+    background-color: #ffffff !important;
+}
+
+div[data-baseweb="popover"] * {
     color: #17231b !important;
+    background-color: #ffffff !important;
 }
 
-.info-box b {
-    color: #103d2c !important;
-}
-
-.small-note {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 13px;
-    color: #4d5f54 !important;
+/* Opsi dropdown saat hover */
+div[data-baseweb="popover"] li:hover,
+div[data-baseweb="popover"] div:hover {
+    background-color: #eef5ec !important;
+    color: #17231b !important;
 }
 
 /* =========================
