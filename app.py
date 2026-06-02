@@ -465,7 +465,80 @@ if "total_serangan" in df_pilih.columns:
     col8.metric("Total Serangan", f"{data_akhir['total_serangan']:.2f} ha")
 else:
     col8.metric("Total Serangan", "-")
+# =====================================================
+# RINGKASAN MONITORING SEMUA PROVINSI
+# =====================================================
+st.subheader("Ringkasan Monitoring Semua Provinsi")
 
+df_ringkasan = df[
+    (df["tahun"] == tahun) &
+    (df["triwulan"] == triwulan) &
+    (df["komoditas"] == komoditas) &
+    (df["opt"] == opt)
+].copy()
+
+if not df_ringkasan.empty:
+    df_ringkasan["gdd_triwulan_dashboard"] = (
+        (((df_ringkasan["tmax_rata"] + df_ringkasan["tmin_rata"]) / 2) - tbase)
+        * df_ringkasan["jumlah_hari"]
+    ).clip(lower=0)
+
+    df_ringkasan = df_ringkasan.sort_values(["provinsi", "tahun", "triwulan"])
+
+    df_ringkasan["gdd_akumulasi_dashboard"] = (
+        df_ringkasan
+        .groupby(["provinsi", "komoditas", "opt", "tahun"])["gdd_triwulan_dashboard"]
+        .cumsum()
+    )
+
+    df_ringkasan["status_dashboard"] = df_ringkasan["gdd_akumulasi_dashboard"].apply(status_dari_gdd)
+
+    kolom_ringkasan = [
+        "provinsi",
+        "tahun",
+        "triwulan",
+        "komoditas",
+        "opt",
+        "suhu_rata",
+        "hujan_total",
+        "gdd_triwulan_dashboard",
+        "gdd_akumulasi_dashboard",
+        "status_dashboard"
+    ]
+
+    if "total_serangan" in df_ringkasan.columns:
+        kolom_ringkasan.append("total_serangan")
+
+    df_ringkasan_tampil = df_ringkasan[kolom_ringkasan].copy()
+
+    df_ringkasan_tampil = df_ringkasan_tampil.rename(columns={
+        "provinsi": "Provinsi",
+        "tahun": "Tahun",
+        "triwulan": "Triwulan",
+        "komoditas": "Komoditas",
+        "opt": "OPT",
+        "suhu_rata": "Suhu Rata-rata (°C)",
+        "hujan_total": "Curah Hujan (mm)",
+        "gdd_triwulan_dashboard": "GDD Triwulan",
+        "gdd_akumulasi_dashboard": "Akumulasi GDD",
+        "status_dashboard": "Status",
+        "total_serangan": "Total Serangan (ha)"
+    })
+
+    st.dataframe(df_ringkasan_tampil, use_container_width=True)
+
+    jumlah_hijau = (df_ringkasan["status_dashboard"] == "Hijau").sum()
+    jumlah_kuning = (df_ringkasan["status_dashboard"] == "Kuning").sum()
+    jumlah_merah = (df_ringkasan["status_dashboard"] == "Merah").sum()
+
+    colr1, colr2, colr3 = st.columns(3)
+
+    colr1.metric("Provinsi Status Hijau", int(jumlah_hijau))
+    colr2.metric("Provinsi Status Kuning", int(jumlah_kuning))
+    colr3.metric("Provinsi Status Merah", int(jumlah_merah))
+
+else:
+    st.info("Data ringkasan semua provinsi tidak tersedia untuk kombinasi pilihan ini.")
 # =====================================================
 # PREDIKSI GDD TRIWULAN BERIKUTNYA
 # =====================================================
