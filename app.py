@@ -378,17 +378,25 @@ gdd_merah = param["gdd_merah"]
 # =====================================================
 # HITUNG GDD DASHBOARD UNTUK SEMUA OPT
 # =====================================================
-df_pilih = df_pilih.sort_values(["tahun", "triwulan"])
 
-df_pilih["gdd_triwulan_dashboard"] = (
-    (((df_pilih["tmax_rata"] + df_pilih["tmin_rata"]) / 2) - tbase)
-    * df_pilih["jumlah_hari"]
-).clip(lower=0)
+# Data detail asli tetap disimpan untuk tabel
+df_pilih_detail = df_pilih.copy()
 
-df_pilih["gdd_akumulasi_dashboard"] = (
-    df_pilih
-    .groupby(["provinsi", "komoditas", "opt", "tahun"])["gdd_triwulan_dashboard"]
-    .cumsum()
+# Data grafik dan perhitungan GDD dibuat unik per provinsi-tahun-triwulan-komoditas-OPT
+df_grafik = (
+    df_tahun[
+        (df_tahun["komoditas"] == komoditas) &
+        (df_tahun["opt"] == opt)
+    ]
+    .groupby(["provinsi", "tahun", "triwulan", "komoditas", "opt"], as_index=False)
+    .agg(
+        tmax_rata=("tmax_rata", "mean"),
+        tmin_rata=("tmin_rata", "mean"),
+        suhu_rata=("suhu_rata", "mean"),
+        hujan_total=("hujan_total", "mean"),
+        jumlah_hari=("jumlah_hari", "mean"),
+        total_serangan=("total_serangan", "sum") if "total_serangan" in df_tahun.columns else ("triwulan", "count")
+    )
 )
 
 df_grafik = df_grafik.sort_values(["tahun", "triwulan"])
@@ -404,9 +412,15 @@ df_grafik["gdd_akumulasi_dashboard"] = (
     .cumsum()
 )
 
+# Ambil data sesuai triwulan yang dipilih
+df_pilih = df_grafik[df_grafik["triwulan"] == triwulan].copy()
+
+if df_pilih.empty:
+    st.warning("Data tidak tersedia untuk pilihan ini.")
+    st.stop()
+
 data_akhir = df_pilih.iloc[-1]
 gdd_akhir = data_akhir["gdd_akumulasi_dashboard"]
-
 def status_dari_gdd(gdd):
     if gdd >= gdd_merah:
         return "Merah"
