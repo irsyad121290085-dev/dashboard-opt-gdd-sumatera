@@ -261,7 +261,6 @@ tahun = st.sidebar.selectbox("Pilih Tahun", tahun_list)
 
 df_tahun = df_prov[df_prov["tahun"] == tahun]
 
-# FITUR BARU: PILIH TRIWULAN
 triwulan_list = sorted(df_tahun["triwulan"].dropna().unique())
 triwulan = st.sidebar.selectbox(
     "Pilih Triwulan",
@@ -281,7 +280,6 @@ opt = st.sidebar.selectbox("Pilih OPT", opt_list)
 
 df_pilih = df_komoditas[df_komoditas["opt"] == opt].copy()
 
-# Data khusus grafik: tetap menampilkan pola Triwulan 1-4 pada tahun yang dipilih
 df_grafik = df_tahun[
     (df_tahun["komoditas"] == komoditas) &
     (df_tahun["opt"] == opt)
@@ -341,7 +339,6 @@ df_pilih["gdd_akumulasi_dashboard"] = (
     .cumsum()
 )
 
-# Hitung juga untuk grafik semua triwulan
 df_grafik = df_grafik.sort_values(["tahun", "triwulan"])
 
 df_grafik["gdd_triwulan_dashboard"] = (
@@ -424,17 +421,21 @@ else:
 st.subheader("Prediksi Triwulan Berikutnya")
 
 triwulan_saat_ini = int(data_akhir["triwulan"])
+tahun_saat_ini = int(data_akhir["tahun"])
 
 if triwulan_saat_ini < 4:
     triwulan_prediksi = triwulan_saat_ini + 1
+    tahun_prediksi = tahun_saat_ini
 else:
     triwulan_prediksi = 1
+    tahun_prediksi = tahun_saat_ini + 1
 
 data_historis_next = df[
     (df["provinsi"] == provinsi) &
     (df["komoditas"] == komoditas) &
     (df["opt"] == opt) &
-    (df["triwulan"] == triwulan_prediksi)
+    (df["triwulan"] == triwulan_prediksi) &
+    (df["tahun"] < tahun_prediksi)
 ].copy()
 
 if not data_historis_next.empty:
@@ -447,20 +448,24 @@ if not data_historis_next.empty:
     prediksi_akumulasi = gdd_akhir + rata_gdd_next
     status_prediksi = status_dari_gdd(prediksi_akumulasi)
 
-    colp1, colp2, colp3 = st.columns(3)
+    colp1, colp2, colp3, colp4 = st.columns(4)
 
-    colp1.metric("Prediksi Triwulan", int(triwulan_prediksi))
-    colp2.metric("Tambahan GDD Prediksi", f"{rata_gdd_next:.2f}")
-    colp3.metric("Prediksi Akumulasi GDD", f"{prediksi_akumulasi:.2f}")
+    colp1.metric("Tahun Prediksi", int(tahun_prediksi))
+    colp2.metric("Prediksi Triwulan", int(triwulan_prediksi))
+    colp3.metric("Tambahan GDD Prediksi", f"{rata_gdd_next:.2f} GDD")
+    colp4.metric("Prediksi Akumulasi GDD", f"{prediksi_akumulasi:.2f} GDD")
 
     if status_prediksi == "Merah":
-        st.error("Prediksi Status: MERAH - Risiko tinggi pada triwulan berikutnya")
+        st.error(f"Prediksi Status {tahun_prediksi} Triwulan {triwulan_prediksi}: MERAH - Risiko tinggi")
     elif status_prediksi == "Kuning":
-        st.warning("Prediksi Status: KUNING - Perlu kewaspadaan pada triwulan berikutnya")
+        st.warning(f"Prediksi Status {tahun_prediksi} Triwulan {triwulan_prediksi}: KUNING - Perlu kewaspadaan")
     else:
-        st.success("Prediksi Status: HIJAU - Risiko relatif rendah pada triwulan berikutnya")
+        st.success(f"Prediksi Status {tahun_prediksi} Triwulan {triwulan_prediksi}: HIJAU - Risiko relatif rendah")
 
-    st.caption("Prediksi dihitung dari rata-rata historis GDD pada triwulan yang sama dalam dataset.")
+    st.caption(
+        "Prediksi dihitung menggunakan rata-rata historis GDD pada triwulan yang sama "
+        "berdasarkan data tahun-tahun sebelumnya dalam dataset."
+    )
 else:
     st.info("Data historis untuk prediksi triwulan berikutnya belum tersedia.")
 
@@ -590,22 +595,31 @@ st.markdown(
 # GRAFIK BAWAAN STREAMLIT
 # =====================================================
 st.subheader("Grafik Akumulasi GDD per Triwulan")
+st.caption("Satuan: GDD kumulatif. Sumbu X = Triwulan, Sumbu Y = Akumulasi GDD.")
 
 grafik_gdd = df_grafik[["triwulan", "gdd_akumulasi_dashboard"]].copy()
 grafik_gdd = grafik_gdd.groupby("triwulan", as_index=True)["gdd_akumulasi_dashboard"].mean()
+grafik_gdd = grafik_gdd.reindex([1, 2, 3, 4])
+
 st.line_chart(grafik_gdd)
 
 st.subheader("Curah Hujan per Triwulan")
+st.caption("Satuan: milimeter (mm). Sumbu X = Triwulan, Sumbu Y = Total curah hujan triwulan.")
 
 grafik_hujan = df_grafik[["triwulan", "hujan_total"]].copy()
 grafik_hujan = grafik_hujan.groupby("triwulan", as_index=True)["hujan_total"].mean()
+grafik_hujan = grafik_hujan.reindex([1, 2, 3, 4])
+
 st.bar_chart(grafik_hujan)
 
 if "total_serangan" in df_grafik.columns:
     st.subheader("Total Luas Serangan per Triwulan")
+    st.caption("Satuan: hektare (ha). Sumbu X = Triwulan, Sumbu Y = Total luas serangan OPT.")
 
     grafik_serangan = df_grafik[["triwulan", "total_serangan"]].copy()
     grafik_serangan = grafik_serangan.groupby("triwulan", as_index=True)["total_serangan"].sum()
+    grafik_serangan = grafik_serangan.reindex([1, 2, 3, 4]).fillna(0)
+
     st.bar_chart(grafik_serangan)
 
 # =====================================================
@@ -646,6 +660,12 @@ with st.expander("Metodologi Perhitungan"):
     - **Merah**: Akumulasi GDD mencapai atau melewati ambang bahaya.
 
     **Prediksi triwulan berikutnya** dihitung menggunakan rata-rata historis GDD pada triwulan yang sama dalam dataset.
+
+    **Satuan grafik:**
+
+    - Grafik Akumulasi GDD: satuan GDD kumulatif.
+    - Grafik Curah Hujan: milimeter (mm).
+    - Grafik Total Luas Serangan: hektare (ha).
     """)
 
 st.markdown("""
