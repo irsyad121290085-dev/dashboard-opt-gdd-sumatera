@@ -19,10 +19,8 @@ st.markdown("""
    GLOBAL BACKGROUND
 ========================= */
 .stApp {
-    background:
-        radial-gradient(circle at top left, rgba(45, 106, 79, 0.16), transparent 32%),
-        radial-gradient(circle at bottom right, rgba(183, 228, 199, 0.32), transparent 35%),
-        linear-gradient(135deg, #f6faf5 0%, #eef7ef 45%, #ffffff 100%);
+    background: linear-gradient(135deg, #f4f7f2 0%, #eef5ec 45%, #ffffff 100%);
+    color: #17231b;
 }
 
 .block-container {
@@ -31,14 +29,25 @@ st.markdown("""
     max-width: 1160px;
 }
 
-h1, h2, h3 {
-    color: #102a1f;
+/* =========================
+   DEFAULT TEXT FIX
+========================= */
+html, body, [class*="css"] {
+    color: #17231b !important;
+}
+
+p, span, div, label {
+    color: #17231b;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #102a1f !important;
     letter-spacing: -0.3px;
 }
 
 hr {
     border: none;
-    border-top: 1px solid rgba(45, 106, 79, 0.15);
+    border-top: 1px solid #d6e2d3;
     margin: 30px 0;
 }
 
@@ -46,71 +55,57 @@ hr {
    SIDEBAR
 ========================= */
 section[data-testid="stSidebar"] {
-    background:
-        linear-gradient(180deg, #eaf5ec 0%, #f8fbf7 100%);
-    border-right: 1px solid rgba(45, 106, 79, 0.18);
+    background: #eef5ec;
+    border-right: 1px solid #cfded0;
+}
+
+section[data-testid="stSidebar"] * {
+    color: #17231b !important;
 }
 
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3 {
-    color: #103d2c;
+    color: #103d2c !important;
     font-weight: 800;
 }
 
 section[data-testid="stSidebar"] label {
-    color: #244538;
+    color: #17231b !important;
     font-weight: 700;
     font-size: 14px;
 }
 
-section[data-testid="stSidebar"] [data-baseweb="select"] {
-    border-radius: 14px;
+/* Selectbox text */
+section[data-testid="stSidebar"] [data-baseweb="select"] * {
+    color: #17231b !important;
 }
 
 /* =========================
    HEADER CARD
 ========================= */
 .header-card {
-    position: relative;
-    overflow: hidden;
-    background:
-        radial-gradient(circle at 8% 15%, rgba(255,255,255,0.25), transparent 26%),
-        radial-gradient(circle at 90% 20%, rgba(183,228,199,0.22), transparent 26%),
-        linear-gradient(135deg, #0b2f22 0%, #145038 48%, #2d6a4f 100%);
-    padding: 46px 34px;
-    border-radius: 30px;
-    color: white;
+    background: linear-gradient(135deg, #0f3d2e 0%, #1b5e3f 55%, #2d6a4f 100%);
+    padding: 42px 34px;
+    border-radius: 28px;
+    color: #ffffff !important;
     text-align: center;
-    margin-bottom: 38px;
-    box-shadow:
-        0 28px 60px rgba(15, 61, 46, 0.26),
-        inset 0 1px 0 rgba(255,255,255,0.18);
-}
-
-.header-card::after {
-    content: "";
-    position: absolute;
-    width: 260px;
-    height: 260px;
-    border-radius: 50%;
-    right: -80px;
-    bottom: -120px;
-    background: rgba(255,255,255,0.08);
+    margin-bottom: 34px;
+    box-shadow: 0 18px 42px rgba(15, 61, 46, 0.24);
 }
 
 .header-card h1 {
     margin: 0;
-    color: white;
-    font-size: 38px;
+    color: #ffffff !important;
+    font-size: 36px;
     font-weight: 900;
-    letter-spacing: 2.5px;
+    letter-spacing: 2px;
 }
 
 .header-card p {
-    margin-top: 16px;
+    margin-top: 14px;
     font-size: 17px;
-    color: #eaf7ef;
+    color: #eef8f1 !important;
     font-weight: 500;
 }
 
@@ -118,60 +113,62 @@ section[data-testid="stSidebar"] [data-baseweb="select"] {
    INFO BOX
 ========================= */
 .info-box {
-    background: rgba(255,255,255,0.82);
-    backdrop-filter: blur(10px);
+    background: #ffffff;
     padding: 24px 26px;
-    border-radius: 22px;
+    border-radius: 20px;
     border-left: 7px solid #2d6a4f;
     margin-bottom: 24px;
-    box-shadow:
-        0 18px 40px rgba(18, 64, 43, 0.08),
-        inset 0 1px 0 rgba(255,255,255,0.8);
+    box-shadow: 0 10px 26px rgba(18, 64, 43, 0.08);
+    color: #17231b !important;
+}
+
+.info-box,
+.info-box p,
+.info-box span,
+.info-box div {
+    color: #17231b !important;
 }
 
 .info-box b {
-    color: #103d2c;
+    color: #103d2c !important;
 }
 
 .small-note {
     display: inline-block;
     margin-top: 8px;
     font-size: 13px;
-    color: #63776c;
+    color: #4d5f54 !important;
 }
 
 /* =========================
    STATUS CARD
 ========================= */
 .status-card {
-    padding: 30px;
-    border-radius: 26px;
+    padding: 28px;
+    border-radius: 24px;
     font-size: 28px;
     font-weight: 900;
     text-align: center;
     margin: 24px 0 30px 0;
-    box-shadow: 0 20px 46px rgba(0,0,0,0.10);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.10);
     letter-spacing: 0.6px;
 }
 
 .status-green {
-    background:
-        linear-gradient(135deg, #d8f3dc, #b7e4c7);
-    color: #073b22;
+    background: #d8f3dc;
+    color: #073b22 !important;
     border: 1px solid #95d5b2;
 }
 
 .status-yellow {
-    background:
-        linear-gradient(135deg, #fff3cd, #ffe08a);
-    color: #704c00;
+    background: #fff3cd;
+    color: #704c00 !important;
     border: 1px solid #ffd166;
 }
 
 .status-red {
-    background:
-        linear-gradient(135deg, #f8d7da, #f1aeb5);
-    color: #741616;
+    background: #f8d7da;
+    color: #741616 !important;
     border: 1px solid #ea868f;
 }
 
@@ -179,23 +176,24 @@ section[data-testid="stSidebar"] [data-baseweb="select"] {
    METRIC CARDS
 ========================= */
 [data-testid="stMetric"] {
-    background: rgba(255,255,255,0.86);
-    backdrop-filter: blur(10px);
+    background: #ffffff;
     padding: 20px;
-    border-radius: 22px;
-    box-shadow:
-        0 14px 34px rgba(18, 64, 43, 0.08),
-        inset 0 1px 0 rgba(255,255,255,0.8);
-    border: 1px solid rgba(45, 106, 79, 0.10);
+    border-radius: 20px;
+    box-shadow: 0 10px 26px rgba(18, 64, 43, 0.08);
+    border: 1px solid #dfe8dc;
+}
+
+[data-testid="stMetric"] * {
+    color: #17231b !important;
 }
 
 [data-testid="stMetricLabel"] {
-    color: #5c7065;
+    color: #405247 !important;
     font-weight: 800;
 }
 
 [data-testid="stMetricValue"] {
-    color: #103d2c;
+    color: #103d2c !important;
     font-weight: 900;
 }
 
@@ -204,44 +202,137 @@ section[data-testid="stSidebar"] [data-baseweb="select"] {
 ========================= */
 [data-testid="stAlert"] {
     border-radius: 18px;
-    border: none;
-    box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+    border: 1px solid #d9e2d8;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+}
+
+[data-testid="stAlert"] * {
+    color: #17231b !important;
 }
 
 /* =========================
    INTERVENTION BOX
 ========================= */
 .intervention-box {
-    background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(10px);
+    background: #ffffff;
     padding: 26px 30px;
-    border-radius: 24px;
-    border: 1px solid rgba(45, 106, 79, 0.12);
-    box-shadow:
-        0 18px 42px rgba(18, 64, 43, 0.08),
-        inset 0 1px 0 rgba(255,255,255,0.8);
+    border-radius: 22px;
+    border: 1px solid #dfe8dc;
+    box-shadow: 0 12px 30px rgba(18, 64, 43, 0.08);
     margin-bottom: 24px;
+    color: #17231b !important;
+}
+
+.intervention-box,
+.intervention-box p,
+.intervention-box li,
+.intervention-box ul,
+.intervention-box strong,
+.intervention-box em,
+.intervention-box div,
+.intervention-box span {
+    color: #17231b !important;
 }
 
 /* =========================
    CHART / DATAFRAME
 ========================= */
 [data-testid="stDataFrame"] {
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 16px 36px rgba(18, 64, 43, 0.08);
-    border: 1px solid rgba(45, 106, 79, 0.10);
+    box-shadow: 0 12px 28px rgba(18, 64, 43, 0.08);
+    border: 1px solid #dfe8dc;
 }
 
-[data-testid="stVerticalBlock"] > div {
-    border-radius: 18px;
+[data-testid="stDataFrame"] * {
+    color: #17231b !important;
+}
+
+/* Chart captions and text */
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] * {
+    color: #405247 !important;
+}
+
+/* Expander */
+[data-testid="stExpander"] {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #dfe8dc;
+}
+
+[data-testid="stExpander"] * {
+    color: #17231b !important;
+}
+
+/* Markdown text */
+[data-testid="stMarkdownContainer"] {
+    color: #17231b !important;
+}
+
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stMarkdownContainer"] span,
+[data-testid="stMarkdownContainer"] strong {
+    color: #17231b !important;
+}
+
+/* Download button */
+.stDownloadButton button {
+    background-color: #1b5e3f !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    border: none !important;
+    font-weight: 700 !important;
+}
+
+.stDownloadButton button:hover {
+    background-color: #0f3d2e !important;
+    color: #ffffff !important;
+}
+
+/* General buttons */
+.stButton button {
+    background-color: #1b5e3f !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    border: none !important;
+    font-weight: 700 !important;
 }
 
 .footer-note {
-    color: #667085;
+    color: #405247 !important;
     font-size: 13px;
     text-align: center;
     margin-top: 34px;
+}
+
+/* =========================
+   MOBILE READABILITY
+========================= */
+@media screen and (max-width: 768px) {
+    .header-card {
+        padding: 30px 20px;
+        border-radius: 22px;
+    }
+
+    .header-card h1 {
+        font-size: 26px;
+        letter-spacing: 1px;
+    }
+
+    .header-card p {
+        font-size: 14px;
+    }
+
+    .status-card {
+        font-size: 22px;
+        padding: 22px;
+    }
+
+    [data-testid="stMetric"] {
+        padding: 16px;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
