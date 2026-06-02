@@ -184,7 +184,7 @@ div[data-baseweb="popover"] div:hover {
    INTERVENTION BOX
 ========================= */
 .intervention-box {
-    background: #ffffff;
+    background-color: #ffffff !important;
     padding: 26px 30px;
     border-radius: 22px;
     border: 1px solid #dfe8dc;
@@ -193,15 +193,36 @@ div[data-baseweb="popover"] div:hover {
     color: #17231b !important;
 }
 
+/* Paksa seluruh teks rekomendasi tetap terbaca */
 .intervention-box,
+.intervention-box *,
 .intervention-box p,
 .intervention-box li,
 .intervention-box ul,
+.intervention-box ol,
 .intervention-box strong,
 .intervention-box em,
 .intervention-box div,
 .intervention-box span {
     color: #17231b !important;
+    background-color: transparent !important;
+}
+
+/* Judul tebal di dalam rekomendasi */
+.intervention-box strong {
+    color: #103d2c !important;
+    font-weight: 800 !important;
+}
+
+/* List spacing agar lebih rapi */
+.intervention-box ul {
+    margin-top: 10px !important;
+    padding-left: 22px !important;
+}
+
+.intervention-box li {
+    margin-bottom: 6px !important;
+    line-height: 1.55 !important;
 }
 
 /* =========================
