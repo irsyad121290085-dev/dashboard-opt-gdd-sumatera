@@ -763,7 +763,29 @@ if "total_serangan" in df_pilih.columns:
 kolom_tampil = [kolom for kolom in kolom_tampil if kolom in df_pilih.columns]
 
 st.dataframe(df_pilih[kolom_tampil], use_container_width=True)
+# =====================================================
+# DOWNLOAD HASIL ANALISIS
+# =====================================================
+st.subheader("Download Hasil Analisis")
 
+csv_detail = df_pilih[kolom_tampil].to_csv(index=False).encode("utf-8-sig")
+
+st.download_button(
+    label="Download Data Detail Triwulan Dipilih",
+    data=csv_detail,
+    file_name=f"detail_{provinsi}_{tahun}_triwulan_{int(triwulan)}_{komoditas}_{opt}.csv",
+    mime="text/csv"
+)
+
+if "df_ringkasan_tampil" in locals():
+    csv_ringkasan = df_ringkasan_tampil.to_csv(index=False).encode("utf-8-sig")
+
+    st.download_button(
+        label="Download Ringkasan Semua Provinsi",
+        data=csv_ringkasan,
+        file_name=f"ringkasan_semua_provinsi_{tahun}_triwulan_{int(triwulan)}_{komoditas}_{opt}.csv",
+        mime="text/csv"
+    )
 # =====================================================
 # METODOLOGI SINGKAT
 # =====================================================
