@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import pydeck as pdk
 
 # =====================================================
 # PAGE CONFIG
@@ -540,10 +541,10 @@ if not df_ringkasan.empty:
 else:
     st.info("Data ringkasan semua provinsi tidak tersedia untuk kombinasi pilihan ini.")
 # =====================================================
-# PETA TITIK PROVINSI SUMATERA
+# PETA STATUS BERWARNA PROVINSI SUMATERA
 # =====================================================
-st.subheader("Peta Monitoring Provinsi Sumatera")
-st.caption("Peta menunjukkan lokasi provinsi yang memiliki data untuk kombinasi tahun, triwulan, komoditas, dan OPT yang dipilih.")
+st.subheader("Peta Monitoring Status Risiko Provinsi Sumatera")
+st.caption("Warna titik menunjukkan status risiko: hijau = aman, kuning = waspada, merah = risiko tinggi.")
 
 koordinat_provinsi = {
     "Aceh": [4.6951, 96.7494],
@@ -557,6 +558,14 @@ koordinat_provinsi = {
     "Bangka Belitung": [-2.7411, 106.4406],
     "Kep. Riau": [3.9457, 108.1429]
 }
+
+def warna_status(status):
+    if status == "Merah":
+        return [220, 53, 69, 180]
+    elif status == "Kuning":
+        return [255, 193, 7, 180]
+    else:
+        return [40, 167, 69, 180]
 
 if "df_ringkasan" in locals() and not df_ringkasan.empty:
     data_peta = df_ringkasan.copy()
@@ -572,12 +581,53 @@ if "df_ringkasan" in locals() and not df_ringkasan.empty:
     data_peta = data_peta.dropna(subset=["lat", "lon"])
 
     if not data_peta.empty:
-        st.map(
-            data_peta,
-            latitude="lat",
-            longitude="lon",
-            size=80
+        data_peta["warna"] = data_peta["status_dashboard"].apply(warna_status)
+
+        data_peta["tooltip"] = (
+            "Provinsi: " + data_peta["provinsi"].astype(str) +
+            "<br>Komoditas: " + data_peta["komoditas"].astype(str) +
+            "<br>OPT: " + data_peta["opt"].astype(str) +
+            "<br>Status: " + data_peta["status_dashboard"].astype(str) +
+            "<br>Akumulasi GDD: " + data_peta["gdd_akumulasi_dashboard"].round(2).astype(str)
         )
+
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=data_peta,
+            get_position="[lon, lat]",
+            get_fill_color="warna",
+            get_radius=45000,
+            pickable=True
+        )
+
+        view_state = pdk.ViewState(
+            latitude=-0.8,
+            longitude=102.5,
+            zoom=4.4,
+            pitch=0
+        )
+
+        deck = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip={
+                "html": "{tooltip}",
+                "style": {
+                    "backgroundColor": "white",
+                    "color": "black"
+                }
+            }
+        )
+
+        st.pydeck_chart(deck)
+
+        st.markdown("""
+        **Keterangan warna:**
+
+        - Hijau: Risiko rendah / relatif aman  
+        - Kuning: Risiko sedang / perlu kewaspadaan  
+        - Merah: Risiko tinggi / perlu intervensi  
+        """)
 
         kolom_peta = [
             "provinsi",
