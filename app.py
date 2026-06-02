@@ -712,7 +712,7 @@ else:
 # =====================================================
 # NARASI OTOMATIS HASIL ANALISIS
 # =====================================================
-st.subheader("Narasi Otomatis Hasil Analisis")
+st.subheader("Analisis")
 
 def buat_narasi(status, provinsi, tahun, triwulan, komoditas, opt, gdd_akhir, tbase, hujan_total):
     if status == "Hijau":
