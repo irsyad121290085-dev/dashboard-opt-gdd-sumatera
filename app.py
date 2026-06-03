@@ -743,4 +743,406 @@ if not df_ringkasan.empty:
 
     colr1, colr2, colr3 = st.columns(3)
 
-    colr1.metric("Provg
+    colr1.metric("Provinsi Status Hijau", int(jumlah_hijau))
+    colr2.metric("Provinsi Status Kuning", int(jumlah_kuning))
+    colr3.metric("Provinsi Status Merah", int(jumlah_merah))
+
+else:
+    st.info("Data ringkasan semua provinsi tidak tersedia untuk kombinasi pilihan ini.")
+
+# =====================================================
+# PETA STATUS BERWARNA PROVINSI SUMATERA
+# =====================================================
+st.subheader("Peta Monitoring Status Risiko Provinsi Sumatera")
+st.caption("Warna titik menunjukkan status risiko: hijau = aman, kuning = waspada, merah = risiko tinggi.")
+
+koordinat_provinsi = {
+    "Aceh": [4.6951, 96.7494],
+    "Sumatera Utara": [2.1154, 99.5451],
+    "Sumatera Barat": [-0.7399, 100.8000],
+    "Riau": [0.2933, 101.7068],
+    "Jambi": [-1.6101, 103.6131],
+    "Bengkulu": [-3.8004, 102.2655],
+    "Sumatera Selatan": [-3.3194, 103.9144],
+    "Lampung": [-4.5586, 105.4068],
+    "Bangka Belitung": [-2.7411, 106.4406],
+    "Kep. Riau": [3.9457, 108.1429]
+}
+
+def warna_status(status_value):
+    if status_value == "Merah":
+        return [220, 53, 69, 180]
+    elif status_value == "Kuning":
+        return [255, 193, 7, 180]
+    else:
+        return [40, 167, 69, 180]
+
+if "df_ringkasan" in locals() and not df_ringkasan.empty:
+    data_peta = df_ringkasan.copy()
+
+    data_peta["lat"] = data_peta["provinsi"].map(
+        lambda x: koordinat_provinsi.get(x, [None, None])[0]
+    )
+
+    data_peta["lon"] = data_peta["provinsi"].map(
+        lambda x: koordinat_provinsi.get(x, [None, None])[1]
+    )
+
+    data_peta = data_peta.dropna(subset=["lat", "lon"])
+
+    if not data_peta.empty:
+        data_peta["warna"] = data_peta["status_dashboard"].apply(warna_status)
+
+        data_peta["tooltip"] = (
+            "Provinsi: " + data_peta["provinsi"].astype(str) +
+            "<br>Komoditas: " + data_peta["komoditas"].astype(str) +
+            "<br>OPT: " + data_peta["opt"].astype(str) +
+            "<br>Status: " + data_peta["status_dashboard"].astype(str) +
+            "<br>Akumulasi GDD: " + data_peta["gdd_akumulasi_dashboard"].round(2).astype(str)
+        )
+
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=data_peta,
+            get_position="[lon, lat]",
+            get_fill_color="warna",
+            get_radius=45000,
+            pickable=True
+        )
+
+        view_state = pdk.ViewState(
+            latitude=-0.8,
+            longitude=102.5,
+            zoom=4.4,
+            pitch=0
+        )
+
+        deck = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip={
+                "html": "{tooltip}",
+                "style": {
+                    "backgroundColor": "white",
+                    "color": "black"
+                }
+            }
+        )
+
+        st.pydeck_chart(deck)
+
+        st.markdown("""
+        **Keterangan warna:**
+
+        - Hijau: Risiko rendah / relatif aman  
+        - Kuning: Risiko sedang / perlu kewaspadaan  
+        - Merah: Risiko tinggi / perlu intervensi  
+        """)
+
+        kolom_peta = [
+            "provinsi",
+            "komoditas",
+            "opt",
+            "status_dashboard",
+            "gdd_akumulasi_dashboard"
+        ]
+
+        if "total_serangan" in data_peta.columns:
+            kolom_peta.append("total_serangan")
+
+        tabel_peta = data_peta[kolom_peta].copy()
+
+        tabel_peta = tabel_peta.rename(columns={
+            "provinsi": "Provinsi",
+            "komoditas": "Komoditas",
+            "opt": "OPT",
+            "status_dashboard": "Status",
+            "gdd_akumulasi_dashboard": "Akumulasi GDD",
+            "total_serangan": "Total Serangan (ha)"
+        })
+
+        st.dataframe(tabel_peta, use_container_width=True)
+    else:
+        st.info("Koordinat provinsi tidak tersedia untuk data yang dipilih.")
+else:
+    st.info("Data ringkasan provinsi belum tersedia untuk ditampilkan pada peta.")
+
+# =====================================================
+# PREDIKSI GDD TRIWULAN BERIKUTNYA
+# =====================================================
+st.subheader("Prediksi Triwulan Berikutnya")
+
+triwulan_saat_ini = int(data_akhir["triwulan"])
+tahun_saat_ini = int(data_akhir["tahun"])
+
+if triwulan_saat_ini < 4:
+    triwulan_prediksi = triwulan_saat_ini + 1
+    tahun_prediksi = tahun_saat_ini
+else:
+    triwulan_prediksi = 1
+    tahun_prediksi = tahun_saat_ini + 1
+
+data_historis_next = df[
+    (df["provinsi"] == provinsi) &
+    (df["komoditas"] == komoditas) &
+    (df["opt"] == opt) &
+    (df["triwulan"] == triwulan_prediksi) &
+    (df["tahun"] < tahun_prediksi)
+].copy()
+
+if not data_historis_next.empty:
+    data_historis_next["gdd_prediksi_basis"] = (
+        (((data_historis_next["tmax_rata"] + data_historis_next["tmin_rata"]) / 2) - tbase)
+        * data_historis_next["jumlah_hari"]
+    ).clip(lower=0)
+
+    rata_gdd_next = data_historis_next["gdd_prediksi_basis"].mean()
+    prediksi_akumulasi = gdd_akhir + rata_gdd_next
+    status_prediksi = status_dari_gdd(prediksi_akumulasi)
+
+    colp1, colp2, colp3, colp4 = st.columns(4)
+
+    colp1.metric("Tahun Prediksi", int(tahun_prediksi))
+    colp2.metric("Prediksi Triwulan", int(triwulan_prediksi))
+    colp3.metric("Tambahan GDD Prediksi", f"{rata_gdd_next:.2f} GDD")
+    colp4.metric("Prediksi Akumulasi GDD", f"{prediksi_akumulasi:.2f} GDD")
+
+    if status_prediksi == "Merah":
+        st.error(f"Prediksi Status {tahun_prediksi} Triwulan {triwulan_prediksi}: MERAH - Risiko tinggi")
+    elif status_prediksi == "Kuning":
+        st.warning(f"Prediksi Status {tahun_prediksi} Triwulan {triwulan_prediksi}: KUNING - Perlu kewaspadaan")
+    else:
+        st.success(f"Prediksi Status {tahun_prediksi} Triwulan {triwulan_prediksi}: HIJAU - Risiko relatif rendah")
+
+    st.caption(
+        "Prediksi dihitung menggunakan rata-rata historis GDD pada triwulan yang sama "
+        "berdasarkan data tahun-tahun sebelumnya dalam dataset."
+    )
+else:
+    st.info("Data historis untuk prediksi triwulan berikutnya belum tersedia.")
+
+# =====================================================
+# INTERVENSI UNTUK SEMUA KOMODITAS / OPT
+# =====================================================
+st.subheader("Rekomendasi Intervensi")
+
+def intervensi_umum(nama_komoditas, nama_opt, status_risiko):
+    opt_lower = str(nama_opt).lower()
+    komoditas_lower = str(nama_komoditas).lower()
+
+    if status_risiko == "Hijau":
+        return """
+        **Status Hijau - Aman**
+        - Lakukan monitoring rutin.
+        - Catat kondisi tanaman dan gejala awal OPT.
+        - Jaga sanitasi lahan/kebun.
+        - Tidak perlu tindakan pengendalian intensif.
+        """
+
+    elif status_risiko == "Kuning":
+        return """
+        **Status Kuning - Hati-hati**
+        - Tingkatkan frekuensi pengamatan lapangan.
+        - Periksa bagian tanaman yang rentan terserang.
+        - Identifikasi gejala awal dan populasi OPT.
+        - Siapkan tindakan pengendalian terpadu bila serangan meningkat.
+        """
+
+    elif status_risiko == "Merah":
+        if "kumbang" in opt_lower or "oryctes" in opt_lower:
+            return """
+            **Status Merah - Bahaya: Kumbang / Oryctes**
+            - Lakukan sanitasi batang, tunggul, dan pelepah membusuk.
+            - Kurangi tempat berkembang biak larva.
+            - Gunakan perangkap feromon bila tersedia.
+            - Pantau tanaman muda dengan gejala gerekan.
+            - Terapkan pengendalian terpadu sesuai rekomendasi lapangan.
+            """
+
+        elif "ulat" in opt_lower:
+            return """
+            **Status Merah - Bahaya: Ulat**
+            - Lakukan pengamatan intensif pada daun atau pelepah.
+            - Identifikasi tingkat populasi larva.
+            - Pertahankan musuh alami.
+            - Lakukan pengendalian terpadu jika populasi melewati ambang kendali.
+            """
+
+        elif "penggerek" in opt_lower:
+            return """
+            **Status Merah - Bahaya: Penggerek**
+            - Sanitasi bagian tanaman yang terserang.
+            - Kumpulkan dan musnahkan bagian tanaman atau buah terserang.
+            - Gunakan perangkap bila tersedia.
+            - Lakukan pengendalian terpadu secara tepat sasaran.
+            """
+
+        elif "karat" in opt_lower or "jamur" in opt_lower or "busuk" in opt_lower:
+            return """
+            **Status Merah - Bahaya: Penyakit / Jamur**
+            - Pangkas bagian tanaman yang terlalu rimbun.
+            - Perbaiki sirkulasi udara dan drainase.
+            - Sanitasi tanaman sakit.
+            - Lakukan pengendalian penyakit sesuai rekomendasi teknis.
+            """
+
+        elif "babi" in opt_lower or "tikus" in opt_lower:
+            return """
+            **Status Merah - Bahaya: Hama Vertebrata**
+            - Perkuat monitoring batas kebun/lahan.
+            - Gunakan penghalang fisik atau perangkap sesuai ketentuan.
+            - Bersihkan area yang menjadi tempat persembunyian.
+            - Lakukan pengendalian terpadu berbasis kondisi lapangan.
+            """
+
+        else:
+            if "karet" in komoditas_lower:
+                return """
+                **Status Merah - Bahaya pada Komoditas Karet**
+                - Lakukan pengamatan intensif pada batang, daun, akar, dan area sekitar tanaman.
+                - Identifikasi gejala serangan OPT.
+                - Sanitasi kebun dan tanaman terserang.
+                - Terapkan pengendalian terpadu sesuai kondisi lapangan.
+                """
+
+            elif "sawit" in komoditas_lower:
+                return """
+                **Status Merah - Bahaya pada Komoditas Kelapa Sawit**
+                - Lakukan monitoring pelepah, pucuk, batang, dan tandan.
+                - Bersihkan bahan organik membusuk yang dapat menjadi sumber OPT.
+                - Gunakan perangkap atau pengendalian hayati bila tersedia.
+                - Terapkan pengendalian terpadu sesuai ambang kendali.
+                """
+
+            elif "kopi" in komoditas_lower:
+                return """
+                **Status Merah - Bahaya pada Komoditas Kopi**
+                - Periksa buah, daun, batang, dan cabang.
+                - Lakukan sanitasi kebun dan pemangkasan bila diperlukan.
+                - Kumpulkan bagian tanaman/buah terserang.
+                - Terapkan pengendalian terpadu sesuai rekomendasi teknis.
+                """
+
+            else:
+                return """
+                **Status Merah - Bahaya**
+                - Lakukan pengamatan intensif.
+                - Identifikasi tingkat serangan.
+                - Terapkan pengendalian terpadu.
+                - Gunakan pestisida secara bijak hanya bila diperlukan dan sesuai rekomendasi.
+                """
+
+    return "Intervensi belum tersedia."
+
+st.info(intervensi_umum(komoditas, opt, status))
+
+# =====================================================
+# GRAFIK BAWAAN STREAMLIT
+# =====================================================
+st.subheader("Grafik Akumulasi GDD per Triwulan")
+st.caption("Satuan: GDD kumulatif. Sumbu X = Triwulan, Sumbu Y = Akumulasi GDD.")
+
+grafik_gdd = df_grafik[["triwulan", "gdd_akumulasi_dashboard"]].copy()
+grafik_gdd = grafik_gdd.groupby("triwulan", as_index=True)["gdd_akumulasi_dashboard"].mean()
+grafik_gdd = grafik_gdd.reindex([1, 2, 3, 4])
+
+st.line_chart(grafik_gdd)
+
+st.subheader("Curah Hujan per Triwulan")
+st.caption("Satuan: milimeter (mm). Sumbu X = Triwulan, Sumbu Y = Total curah hujan triwulan.")
+
+grafik_hujan = df_grafik[["triwulan", "hujan_total"]].copy()
+grafik_hujan = grafik_hujan.groupby("triwulan", as_index=True)["hujan_total"].mean()
+grafik_hujan = grafik_hujan.reindex([1, 2, 3, 4])
+
+st.bar_chart(grafik_hujan)
+
+if "total_serangan" in df_grafik.columns:
+    st.subheader("Total Luas Serangan per Triwulan")
+    st.caption("Satuan: hektare (ha). Sumbu X = Triwulan, Sumbu Y = Total luas serangan OPT.")
+
+    grafik_serangan = df_grafik[["triwulan", "total_serangan"]].copy()
+    grafik_serangan = grafik_serangan.groupby("triwulan", as_index=True)["total_serangan"].sum()
+    grafik_serangan = grafik_serangan.reindex([1, 2, 3, 4]).fillna(0)
+
+    st.bar_chart(grafik_serangan)
+
+# =====================================================
+# DATA DETAIL
+# =====================================================
+st.subheader("Data Detail Triwulan Dipilih")
+
+kolom_tampil = [
+    "provinsi", "tahun", "triwulan", "komoditas", "opt",
+    "tmax_rata", "tmin_rata", "suhu_rata", "hujan_total",
+    "gdd_triwulan_dashboard", "gdd_akumulasi_dashboard"
+]
+
+if "total_serangan" in df_pilih.columns:
+    kolom_tampil.append("total_serangan")
+
+kolom_tampil = [kolom for kolom in kolom_tampil if kolom in df_pilih.columns]
+
+st.dataframe(df_pilih[kolom_tampil], use_container_width=True)
+
+# =====================================================
+# DOWNLOAD HASIL ANALISIS
+# =====================================================
+st.subheader("Download Hasil Analisis")
+
+csv_detail = df_pilih[kolom_tampil].to_csv(index=False).encode("utf-8-sig")
+
+st.download_button(
+    label="Download Data Detail Triwulan Dipilih",
+    data=csv_detail,
+    file_name=f"detail_{provinsi}_{tahun}_triwulan_{int(triwulan)}_{komoditas}_{opt}.csv",
+    mime="text/csv"
+)
+
+if "df_ringkasan_tampil" in locals():
+    csv_ringkasan = df_ringkasan_tampil.to_csv(index=False).encode("utf-8-sig")
+
+    st.download_button(
+        label="Download Ringkasan Semua Provinsi",
+        data=csv_ringkasan,
+        file_name=f"ringkasan_semua_provinsi_{tahun}_triwulan_{int(triwulan)}_{komoditas}_{opt}.csv",
+        mime="text/csv"
+    )
+
+# =====================================================
+# METODOLOGI SINGKAT
+# =====================================================
+with st.expander("Metodologi Perhitungan"):
+    st.markdown("""
+    **Growing Degree Days (GDD)** dihitung menggunakan suhu maksimum dan minimum rata-rata triwulan.
+
+    Rumus dasar:
+
+    `GDD = ((Tmax + Tmin) / 2 - Tbase) × jumlah hari`
+
+    Jika hasil GDD bernilai negatif, maka nilainya dianggap 0.
+
+    **Tbase:**
+
+    Tbase pada dashboard diprioritaskan berdasarkan jenis OPT. Untuk OPT yang belum memiliki parameter spesifik, sistem menggunakan pendekatan kelompok OPT atau komoditas sebagai parameter awal.
+
+    **Status risiko:**
+
+    - **Hijau**: Akumulasi GDD masih rendah.
+    - **Kuning**: Akumulasi GDD mendekati ambang waspada.
+    - **Merah**: Akumulasi GDD mencapai atau melewati ambang bahaya.
+
+    **Prediksi triwulan berikutnya** dihitung menggunakan rata-rata historis GDD pada triwulan yang sama dalam dataset.
+
+    **Satuan grafik:**
+
+    - Grafik Akumulasi GDD: satuan GDD kumulatif.
+    - Grafik Curah Hujan: milimeter (mm).
+    - Grafik Total Luas Serangan: hektare (ha).
+    """)
+
+st.markdown("""
+<div class="footer-note">
+    Dashboard Monitoring OPT Sumatera berbasis data suhu, curah hujan, dan serangan OPT.
+</div>
+""", unsafe_allow_html=True)
