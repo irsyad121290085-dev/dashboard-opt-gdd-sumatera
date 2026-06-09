@@ -475,113 +475,140 @@ if df_pilih.empty:
     st.stop()
 
 # =====================================================
-# PARAMETER BERDASARKAN OPT
+# PARAMETER MODEL RISIKO BERDASARKAN KARAKTER OPT
 # =====================================================
 def ambil_parameter_opt(nama_komoditas, nama_opt):
     opt_lower = str(nama_opt).lower()
     komoditas_lower = str(nama_komoditas).lower()
 
-    if "ulat api" in opt_lower or "ulat" in opt_lower:
+    # =================================================
+    # 1. MODEL GDD SIKLUS HIDUP
+    # Dipakai untuk OPT yang punya referensi degree-day lebih kuat.
+    # =================================================
+    if (
+        "pbko" in opt_lower
+        or "penggerek buah kopi" in opt_lower
+        or "hypothenemus" in opt_lower
+    ):
         return {
-            "tbase": 12,
-            "gdd_kuning": 1000,
-            "gdd_merah": 2200,
-            "dasar_tbase": "Pendekatan Tbase OPT serangga daun/ulat"
+            "tipe_model": "GDD Siklus Hidup OPT",
+            "tbase": 14.9,
+            "gdd_fase_merusak": 262.47,
+            "gdd_kuning": 262.47 * 0.6,
+            "gdd_merah": 262.47,
+            "fase_merusak": "Generasi baru / fase aktif merusak buah kopi",
+            "dasar_model": "Model GDD siklus hidup PBKo; Tbase ±14,9°C dan kebutuhan panas ±262,47 degree-days.",
+            "sumber_model": "Jaramillo et al. (2009); Hamilton et al. (2019)"
         }
 
-    elif "oryctes" in opt_lower or "kumbang" in opt_lower:
+    # =================================================
+    # 2. MODEL GDD HISTORIS SERANGGA
+    # Dipakai untuk serangga yang belum punya angka fase GDD spesifik.
+    # Status dihitung dari pola historis dataset.
+    # =================================================
+    elif (
+        "ulat api" in opt_lower
+        or "ulat" in opt_lower
+        or "oryctes" in opt_lower
+        or "kumbang" in opt_lower
+        or "penggerek" in opt_lower
+    ):
+        if "kopi" in komoditas_lower:
+            tbase_default = 15
+        elif "sawit" in komoditas_lower:
+            tbase_default = 12
+        else:
+            tbase_default = 10
+
         return {
-            "tbase": 12,
-            "gdd_kuning": 1000,
-            "gdd_merah": 2200,
-            "dasar_tbase": "Pendekatan Tbase OPT kumbang/Oryctes"
+            "tipe_model": "GDD Historis Serangga",
+            "tbase": tbase_default,
+            "gdd_fase_merusak": None,
+            "gdd_kuning": None,
+            "gdd_merah": None,
+            "fase_merusak": "Fase merusak spesifik belum dimasukkan; status dibaca dari pola historis GDD dataset.",
+            "dasar_model": "OPT serangga dimodelkan dengan akumulasi GDD, tetapi ambang fase merusak spesifik belum tersedia.",
+            "sumber_model": "Pendekatan historis dataset dan konsep GDD serangga."
         }
 
-    elif "penggerek buah" in opt_lower or "pbko" in opt_lower:
+    # =================================================
+    # 3. MODEL KONDISI LINGKUNGAN PENYAKIT / JAMUR
+    # Tidak dipaksa pakai siklus GDD serangga.
+    # =================================================
+    elif (
+        "karat" in opt_lower
+        or "jamur" in opt_lower
+        or "busuk" in opt_lower
+        or "akar" in opt_lower
+        or "ganoderma" in opt_lower
+    ):
         return {
-            "tbase": 15,
-            "gdd_kuning": 900,
-            "gdd_merah": 1800,
-            "dasar_tbase": "Pendekatan Tbase OPT penggerek buah kopi"
-        }
-
-    elif "penggerek" in opt_lower:
-        return {
-            "tbase": 15,
-            "gdd_kuning": 900,
-            "gdd_merah": 1800,
-            "dasar_tbase": "Pendekatan Tbase OPT penggerek"
-        }
-
-    elif "karat" in opt_lower:
-        return {
-            "tbase": 15,
-            "gdd_kuning": 900,
-            "gdd_merah": 1800,
-            "dasar_tbase": "Pendekatan Tbase OPT penyakit daun kopi"
-        }
-
-    elif "jamur" in opt_lower or "busuk" in opt_lower or "akar" in opt_lower or "ganoderma" in opt_lower:
-        return {
+            "tipe_model": "Kondisi Lingkungan Penyakit",
             "tbase": 10,
-            "gdd_kuning": 1200,
-            "gdd_merah": 2500,
-            "dasar_tbase": "Pendekatan Tbase OPT penyakit/jamur"
+            "gdd_fase_merusak": None,
+            "gdd_kuning": None,
+            "gdd_merah": None,
+            "fase_merusak": "Penyakit/jamur lebih dipengaruhi kondisi suhu, kelembapan, dan curah hujan.",
+            "dasar_model": "Model penyakit menggunakan kondisi lingkungan pendukung, bukan siklus GDD serangga.",
+            "sumber_model": "Pendekatan agroklimat penyakit tanaman."
         }
 
+    # =================================================
+    # 4. MODEL MONITORING HISTORIS / LAPANGAN
+    # Untuk OPT vertebrata.
+    # =================================================
     elif "tikus" in opt_lower or "babi" in opt_lower:
         if "sawit" in komoditas_lower:
             tbase_default = 12
-            kuning = 1000
-            merah = 2200
         elif "kopi" in komoditas_lower:
             tbase_default = 15
-            kuning = 900
-            merah = 1800
         else:
             tbase_default = 10
-            kuning = 1200
-            merah = 2500
 
         return {
+            "tipe_model": "Monitoring Historis/Lapangan",
             "tbase": tbase_default,
-            "gdd_kuning": kuning,
-            "gdd_merah": merah,
-            "dasar_tbase": "OPT vertebrata tidak memiliki Tbase GDD spesifik; memakai pendekatan komoditas"
+            "gdd_fase_merusak": None,
+            "gdd_kuning": None,
+            "gdd_merah": None,
+            "fase_merusak": "OPT vertebrata tidak dimodelkan dengan fase GDD.",
+            "dasar_model": "Tikus/babi lebih tepat dibaca dari riwayat serangan dan monitoring lapangan.",
+            "sumber_model": "Pendekatan monitoring historis dan observasi lapangan."
         }
 
+    # =================================================
+    # FALLBACK
+    # =================================================
     else:
-        if "sawit" in komoditas_lower:
-            return {
-                "tbase": 12,
-                "gdd_kuning": 1000,
-                "gdd_merah": 2200,
-                "dasar_tbase": "Parameter spesifik OPT belum tersedia; memakai pendekatan komoditas kelapa sawit"
-            }
-
-        elif "kopi" in komoditas_lower:
-            return {
-                "tbase": 15,
-                "gdd_kuning": 900,
-                "gdd_merah": 1800,
-                "dasar_tbase": "Parameter spesifik OPT belum tersedia; memakai pendekatan komoditas kopi"
-            }
-
+        if "kopi" in komoditas_lower:
+            tbase_default = 15
+        elif "sawit" in komoditas_lower:
+            tbase_default = 12
         else:
-            return {
-                "tbase": 10,
-                "gdd_kuning": 1200,
-                "gdd_merah": 2500,
-                "dasar_tbase": "Parameter spesifik OPT belum tersedia; memakai pendekatan komoditas karet"
-            }
+            tbase_default = 10
+
+        return {
+            "tipe_model": "Pendekatan Komoditas",
+            "tbase": tbase_default,
+            "gdd_fase_merusak": None,
+            "gdd_kuning": None,
+            "gdd_merah": None,
+            "fase_merusak": "Jenis OPT belum dikenali spesifik oleh sistem.",
+            "dasar_model": "Parameter spesifik OPT belum tersedia; sistem memakai pendekatan komoditas.",
+            "sumber_model": "Pendekatan awal dashboard."
+        }
+
 
 param = ambil_parameter_opt(komoditas, opt)
 
+tipe_model = param["tipe_model"]
 tbase = param["tbase"]
+gdd_fase_merusak = param["gdd_fase_merusak"]
 gdd_kuning = param["gdd_kuning"]
 gdd_merah = param["gdd_merah"]
-dasar_tbase = param["dasar_tbase"]
-
+fase_merusak = param["fase_merusak"]
+dasar_model = param["dasar_model"]
+sumber_model = param["sumber_model"]
 # =====================================================
 # HITUNG GDD DASHBOARD UNTUK SEMUA OPT
 # =====================================================
@@ -614,15 +641,111 @@ df_grafik["gdd_akumulasi_dashboard"] = (
 data_akhir = df_pilih.iloc[-1]
 gdd_akhir = data_akhir["gdd_akumulasi_dashboard"]
 
-def status_dari_gdd(gdd):
-    if gdd >= gdd_merah:
-        return "Merah"
-    elif gdd >= gdd_kuning:
-        return "Kuning"
-    else:
-        return "Hijau"
+def status_dari_model(gdd, suhu, hujan, total_serangan=0):
+    # =================================================
+    # MODEL 1: GDD SIKLUS HIDUP OPT
+    # Hijau  = belum mendekati fase merusak
+    # Kuning = mendekati fase merusak
+    # Merah  = sudah mencapai/melewati fase merusak
+    # =================================================
+    if tipe_model == "GDD Siklus Hidup OPT":
+        if gdd >= gdd_merah:
+            return "Merah"
+        elif gdd >= gdd_kuning:
+            return "Kuning"
+        else:
+            return "Hijau"
 
-status = status_dari_gdd(gdd_akhir)
+    # =================================================
+    # MODEL 2: GDD HISTORIS SERANGGA
+    # Status dibaca dari pola historis GDD pada dataset
+    # untuk OPT dan komoditas yang sama.
+    # =================================================
+    elif tipe_model == "GDD Historis Serangga":
+        data_hist = df[
+            (df["komoditas"] == komoditas) &
+            (df["opt"] == opt)
+        ].copy()
+
+        if data_hist.empty:
+            return "Hijau"
+
+        data_hist["gdd_hist"] = (
+            (((data_hist["tmax_rata"] + data_hist["tmin_rata"]) / 2) - tbase)
+            * data_hist["jumlah_hari"]
+        ).clip(lower=0)
+
+        q60 = data_hist["gdd_hist"].quantile(0.60)
+        q85 = data_hist["gdd_hist"].quantile(0.85)
+
+        if gdd >= q85:
+            return "Merah"
+        elif gdd >= q60:
+            return "Kuning"
+        else:
+            return "Hijau"
+
+    # =================================================
+    # MODEL 3: KONDISI LINGKUNGAN PENYAKIT / JAMUR
+    # Menggunakan suhu dan curah hujan sebagai kondisi pendukung.
+    # =================================================
+    elif tipe_model == "Kondisi Lingkungan Penyakit":
+        skor = 0
+
+        # Suhu hangat-lembap umumnya mendukung banyak penyakit/jamur tropis.
+        if 24 <= suhu <= 32:
+            skor += 1
+
+        # Curah hujan tinggi meningkatkan kelembapan lingkungan.
+        if hujan >= 300:
+            skor += 2
+        elif hujan >= 150:
+            skor += 1
+
+        # Riwayat serangan memperkuat status.
+        if total_serangan > 0:
+            skor += 1
+
+        if skor >= 3:
+            return "Merah"
+        elif skor >= 2:
+            return "Kuning"
+        else:
+            return "Hijau"
+
+    # =================================================
+    # MODEL 4: MONITORING HISTORIS / LAPANGAN
+    # Untuk tikus/babi dan OPT yang tidak cocok dimodelkan GDD.
+    # =================================================
+    elif tipe_model == "Monitoring Historis/Lapangan":
+        if total_serangan > 0:
+            return "Merah"
+        elif hujan >= 250:
+            return "Kuning"
+        else:
+            return "Hijau"
+
+    # =================================================
+    # FALLBACK
+    # =================================================
+    else:
+        if total_serangan > 0:
+            return "Kuning"
+        else:
+            return "Hijau"
+
+
+total_serangan_akhir = 0
+
+if "total_serangan" in df_pilih.columns:
+    total_serangan_akhir = data_akhir["total_serangan"]
+
+status = status_dari_model(
+    gdd_akhir,
+    data_akhir["suhu_rata"],
+    data_akhir["hujan_total"],
+    total_serangan_akhir
+)
 
 # =====================================================
 # RINGKASAN PILIHAN
@@ -631,13 +754,14 @@ st.subheader(f"{provinsi} | {int(tahun)} | Triwulan {int(triwulan)} | {komoditas
 
 st.markdown(f"""
 <div class="info-box">
-    <b>Parameter GDD yang digunakan:</b><br>
+    <b>Model risiko yang digunakan:</b> {tipe_model}<br>
     Tbase: <b>{tbase} °C</b><br>
-    Dasar Tbase: <b>{dasar_tbase}</b><br>
-    Ambang Kuning: <b>{gdd_kuning}</b><br>
-    Ambang Merah: <b>{gdd_merah}</b><br>
+    Fase/indikator merusak: <b>{fase_merusak}</b><br>
+    Dasar model: <b>{dasar_model}</b><br>
+    Sumber/pendekatan: <b>{sumber_model}</b><br>
     <span class="small-note">
-    Catatan: Sistem memprioritaskan Tbase berdasarkan OPT. Jika parameter spesifik OPT belum tersedia, sistem memakai pendekatan kelompok OPT atau komoditas.
+    Catatan: Status hijau, kuning, dan merah tidak lagi memakai ambang GDD umum.
+    Status disesuaikan dengan karakter OPT: siklus hidup serangga, kondisi lingkungan penyakit, atau monitoring historis/lapangan.
     </span>
 </div>
 """, unsafe_allow_html=True)
@@ -701,7 +825,20 @@ if not df_ringkasan.empty:
         .cumsum()
     )
 
-    df_ringkasan["status_dashboard"] = df_ringkasan["gdd_akumulasi_dashboard"].apply(status_dari_gdd)
+   def hitung_status_ringkasan(row):
+    total_serangan_row = 0
+
+    if "total_serangan" in row.index:
+        total_serangan_row = row["total_serangan"]
+
+    return status_dari_model(
+        row["gdd_akumulasi_dashboard"],
+        row["suhu_rata"],
+        row["hujan_total"],
+        total_serangan_row
+    )
+
+df_ringkasan["status_dashboard"] = df_ringkasan.apply(hitung_status_ringkasan, axis=1)
 
     kolom_ringkasan = [
         "provinsi",
@@ -898,7 +1035,20 @@ if not data_historis_next.empty:
 
     rata_gdd_next = data_historis_next["gdd_prediksi_basis"].mean()
     prediksi_akumulasi = gdd_akhir + rata_gdd_next
-    status_prediksi = status_dari_gdd(prediksi_akumulasi)
+    rata_suhu_prediksi = data_historis_next["suhu_rata"].mean()
+rata_hujan_prediksi = data_historis_next["hujan_total"].mean()
+
+if "total_serangan" in data_historis_next.columns:
+    rata_serangan_prediksi = data_historis_next["total_serangan"].mean()
+else:
+    rata_serangan_prediksi = 0
+
+status_prediksi = status_dari_model(
+    prediksi_akumulasi,
+    rata_suhu_prediksi,
+    rata_hujan_prediksi,
+    rata_serangan_prediksi
+)
 
     colp1, colp2, colp3, colp4 = st.columns(4)
 
@@ -1114,6 +1264,50 @@ if "df_ringkasan_tampil" in locals():
 # =====================================================
 with st.expander("Metodologi Perhitungan"):
     st.markdown("""
+    **Konsep utama dashboard:**
+
+    Dashboard ini memakai pendekatan risiko OPT berdasarkan karakter organisme, bukan lagi hanya ambang GDD umum.
+
+    **1. Model GDD siklus hidup OPT**
+
+    Dipakai untuk OPT serangga yang memiliki referensi degree-day spesifik.  
+    Contoh: PBKo / penggerek buah kopi.
+
+    Rumus dasar:
+
+    `GDD = ((Tmax + Tmin) / 2 - Tbase) × jumlah hari`
+
+    Jika hasil GDD bernilai negatif, maka nilainya dianggap 0.
+
+    Pada model ini, status risiko dibaca sebagai kedekatan akumulasi GDD terhadap fase merusak:
+
+    - **Hijau**: belum mendekati fase merusak.
+    - **Kuning**: mendekati fase merusak.
+    - **Merah**: sudah mencapai atau melewati fase merusak.
+
+    **2. Model GDD historis serangga**
+
+    Dipakai untuk OPT serangga yang belum memiliki angka GDD fase merusak spesifik di dashboard.  
+    Status ditentukan dari posisi GDD terhadap pola historis dataset OPT yang sama.
+
+    **3. Model kondisi lingkungan penyakit**
+
+    Dipakai untuk penyakit/jamur seperti karat, busuk akar, dan Ganoderma.  
+    Status lebih menekankan kombinasi suhu dan curah hujan sebagai kondisi pendukung penyakit, bukan fase hidup serangga.
+
+    **4. Model monitoring historis/lapangan**
+
+    Dipakai untuk OPT vertebrata seperti tikus atau babi.  
+    GDD tidak digunakan sebagai indikator utama karena pola serangan lebih dipengaruhi riwayat serangan, kondisi lahan, dan monitoring lapangan.
+
+    **Prediksi triwulan berikutnya** dihitung menggunakan rata-rata historis GDD pada triwulan yang sama dalam dataset.
+
+    **Satuan grafik:**
+
+    - Grafik Akumulasi GDD: satuan GDD kumulatif.
+    - Grafik Curah Hujan: milimeter (mm).
+    - Grafik Total Luas Serangan: hektare (ha).
+    """)
     **Growing Degree Days (GDD)** dihitung menggunakan suhu maksimum dan minimum rata-rata triwulan.
 
     Rumus dasar:
