@@ -824,20 +824,20 @@ if not df_ringkasan.empty:
         .groupby(["provinsi", "komoditas", "opt", "tahun"])["gdd_triwulan_dashboard"]
         .cumsum()
     )
-    def hitung_status_ringkasan(row):
-    total_serangan_row = 0
-
-    if "total_serangan" in row.index:
-        total_serangan_row = row["total_serangan"]
-
-    return status_dari_model(
-        row["gdd_akumulasi_dashboard"],
-        row["suhu_rata"],
-        row["hujan_total"],
-        total_serangan_row
-    )
-
-df_ringkasan["status_dashboard"] = df_ringkasan.apply(hitung_status_ringkasan, axis=1)
+            def hitung_status_ringkasan(row):
+            total_serangan_row = 0
+        
+            if "total_serangan" in row.index:
+                total_serangan_row = row["total_serangan"]
+        
+            return status_dari_model(
+                row["gdd_akumulasi_dashboard"],
+                row["suhu_rata"],
+                row["hujan_total"],
+                total_serangan_row
+            )
+        
+        df_ringkasan["status_dashboard"] = df_ringkasan.apply(hitung_status_ringkasan, axis=1)
 
     kolom_ringkasan = [
         "provinsi",
