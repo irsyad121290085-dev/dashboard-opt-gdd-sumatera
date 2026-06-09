@@ -1047,7 +1047,7 @@ status_prediksi = status_dari_model(
     rata_serangan_prediksi
 )
 
-    colp1, colp2, colp3, colp4 = st.columns(4)
+colp1, colp2, colp3, colp4 = st.columns(4)
 
     colp1.metric("Tahun Prediksi", int(tahun_prediksi))
     colp2.metric("Prediksi Triwulan", int(triwulan_prediksi))
