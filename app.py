@@ -1274,7 +1274,7 @@ with st.expander("Metodologi Perhitungan"):
 
     Rumus dasar:
 
-    `GDD = ((Tmax + Tmin) / 2 - Tbase) × jumlah hari`
+    `GDD = ((Tmax + Tmin) / 2 - Tbase) x jumlah hari`
 
     Jika hasil GDD bernilai negatif, maka nilainya dianggap 0.
 
@@ -1307,33 +1307,6 @@ with st.expander("Metodologi Perhitungan"):
     - Grafik Curah Hujan: milimeter (mm).
     - Grafik Total Luas Serangan: hektare (ha).
     """)
-    **Growing Degree Days (GDD)** dihitung menggunakan suhu maksimum dan minimum rata-rata triwulan.
-
-    Rumus dasar:
-
-    `GDD = ((Tmax + Tmin) / 2 - Tbase) × jumlah hari`
-
-    Jika hasil GDD bernilai negatif, maka nilainya dianggap 0.
-
-    **Tbase:**
-
-    Tbase pada dashboard diprioritaskan berdasarkan jenis OPT. Untuk OPT yang belum memiliki parameter spesifik, sistem menggunakan pendekatan kelompok OPT atau komoditas sebagai parameter awal.
-
-    **Status risiko:**
-
-    - **Hijau**: Akumulasi GDD masih rendah.
-    - **Kuning**: Akumulasi GDD mendekati ambang waspada.
-    - **Merah**: Akumulasi GDD mencapai atau melewati ambang bahaya.
-
-    **Prediksi triwulan berikutnya** dihitung menggunakan rata-rata historis GDD pada triwulan yang sama dalam dataset.
-
-    **Satuan grafik:**
-
-    - Grafik Akumulasi GDD: satuan GDD kumulatif.
-    - Grafik Curah Hujan: milimeter (mm).
-    - Grafik Total Luas Serangan: hektare (ha).
-    """)
-
 st.markdown("""
 <div class="footer-note">
     Dashboard Monitoring OPT Sumatera berbasis data suhu, curah hujan, dan serangan OPT.
