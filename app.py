@@ -824,8 +824,7 @@ if not df_ringkasan.empty:
         .groupby(["provinsi", "komoditas", "opt", "tahun"])["gdd_triwulan_dashboard"]
         .cumsum()
     )
-
-   def hitung_status_ringkasan(row):
+    def hitung_status_ringkasan(row):
     total_serangan_row = 0
 
     if "total_serangan" in row.index:
