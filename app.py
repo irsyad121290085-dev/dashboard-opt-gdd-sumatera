@@ -1032,22 +1032,23 @@ if not data_historis_next.empty:
 
     rata_gdd_next = data_historis_next["gdd_prediksi_basis"].mean()
     prediksi_akumulasi = gdd_akhir + rata_gdd_next
+
     rata_suhu_prediksi = data_historis_next["suhu_rata"].mean()
-rata_hujan_prediksi = data_historis_next["hujan_total"].mean()
+    rata_hujan_prediksi = data_historis_next["hujan_total"].mean()
 
-if "total_serangan" in data_historis_next.columns:
-    rata_serangan_prediksi = data_historis_next["total_serangan"].mean()
-else:
-    rata_serangan_prediksi = 0
+    if "total_serangan" in data_historis_next.columns:
+        rata_serangan_prediksi = data_historis_next["total_serangan"].mean()
+    else:
+        rata_serangan_prediksi = 0
 
-status_prediksi = status_dari_model(
-    prediksi_akumulasi,
-    rata_suhu_prediksi,
-    rata_hujan_prediksi,
-    rata_serangan_prediksi
-)
+    status_prediksi = status_dari_model(
+        prediksi_akumulasi,
+        rata_suhu_prediksi,
+        rata_hujan_prediksi,
+        rata_serangan_prediksi
+    )
 
-colp1, colp2, colp3, colp4 = st.columns(4)
+    colp1, colp2, colp3, colp4 = st.columns(4)
 
     colp1.metric("Tahun Prediksi", int(tahun_prediksi))
     colp2.metric("Prediksi Triwulan", int(triwulan_prediksi))
